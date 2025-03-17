@@ -20,7 +20,7 @@ const pen = new Pen(visualCanvas);
 let lenet;
 let numRuns;
 
-$(document).ready(async() => {
+$(document).ready(async () => {
 	if (!(await utils.isWebNN())) {
 		console.log(utils.webNNNotSupportMessage());
 		addAlert(utils.webNNNotSupportMessageHTML());
@@ -37,7 +37,7 @@ function clearInferenceResult() {
 	}
 }
 
-$("#backendBtns .btn").on("change", async() => {
+$("#backendBtns .btn").on("change", async () => {
 	await main();
 });
 
@@ -79,16 +79,16 @@ function getInputFromCanvas() {
 
 function getMedianValue(array) {
 	array = array.sort((a, b) => a - b);
-	return array.length % 2 !== 0 ?
-		array[Math.floor(array.length / 2)] :
-		(array[array.length / 2 - 1] + array[array.length / 2]) / 2;
+	return array.length % 2 !== 0
+		? array[Math.floor(array.length / 2)]
+		: (array[array.length / 2 - 1] + array[array.length / 2]) / 2;
 }
 
 async function main() {
 	buildTimeElement.innerHTML = "";
 	predictButton.setAttribute("disabled", true);
 	clearInferenceResult();
-	const [backend, deviceType] = $("input[name=\"backend\"]:checked")
+	const [backend, deviceType] = $('input[name="backend"]:checked')
 		.attr("id")
 		.split("_");
 	console.log(`${backend} ${deviceType}`);
@@ -128,7 +128,7 @@ async function main() {
 	}
 }
 
-predictButton.addEventListener("click", async function(e) {
+predictButton.addEventListener("click", async function (e) {
 	clearInferenceResult();
 	if (pen.isCleared) {
 		addAlert("Please draw a digit first.");
