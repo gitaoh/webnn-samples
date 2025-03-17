@@ -10,8 +10,8 @@ const c = builder.matmul(a, b);
 // Step 2: Compile it into an executable graph.
 const graph = await builder.build({c});
 // Step 3: Bind input and output buffers to the graph and execute.
-const bufferA = new Float32Array(3*4).fill(1.0);
-const bufferB = new Float32Array(4*3).fill(0.8);
+const bufferA = new Float32Array(3 * 4).fill(1.0);
+const bufferB = new Float32Array(4 * 3).fill(0.8);
 descA.usage = MLTensorUsage.WRITE;
 descA.writable = true;
 descB.usage = MLTensorUsage.WRITE;
@@ -21,11 +21,11 @@ const tensorB = await context.createTensor(descB);
 context.writeTensor(tensorA, bufferA);
 context.writeTensor(tensorB, bufferB);
 const tensorC = await context.createTensor({
-  dataType: 'float32',
-  dimensions: [3, 3],
-  shape: [3, 3],
-  usage: MLTensorUsage.READ,
-  readable: true,
+	dataType: 'float32',
+	dimensions: [3, 3],
+	shape: [3, 3],
+	usage: MLTensorUsage.READ,
+	readable: true,
 });
 context.dispatch(graph, {a: tensorA, b: tensorB}, {c: tensorC});
 const results = await context.readTensor(tensorC);

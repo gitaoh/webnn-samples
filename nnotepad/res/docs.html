@@ -1,5 +1,5 @@
 <!doctype html>
-<meta charset=utf8>
+<meta charset="utf8" />
 <title>NNotepad</title>
 <!--
 
@@ -11,69 +11,82 @@
 
 -->
 <style>
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 200;
-  src: url("../../common/css/fonts/poppins/poppins-v15-latin-200.woff2")
-      format("woff2");
-}
+	@font-face {
+		font-family: "Poppins";
+		font-style: normal;
+		font-weight: 200;
+		src: url("../../common/css/fonts/poppins/poppins-v15-latin-200.woff2")
+			format("woff2");
+	}
 
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 400;
-  src: url("../../common/css/fonts/poppins/poppins-v15-latin-regular.woff2")
-      format("woff2");
-}
+	@font-face {
+		font-family: "Poppins";
+		font-style: normal;
+		font-weight: 400;
+		src: url("../../common/css/fonts/poppins/poppins-v15-latin-regular.woff2")
+			format("woff2");
+	}
 
-@font-face {
-  font-display: swap;
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 200;
-  src: url('../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-200.woff2') format('woff2');
-}
+	@font-face {
+		font-display: swap;
+		font-family: "JetBrains Mono";
+		font-style: normal;
+		font-weight: 200;
+		src: url("../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-200.woff2")
+			format("woff2");
+	}
 
-@font-face {
-  font-display: swap;
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 400;
-  src: url('../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-regular.woff2') format('woff2');
-}
-body {
-  font-size: 16px;
-  line-height: 30px;
-  font-family: "Poppins", "Consolas", "Lucida Console", monospace;
-}
-code {
-  font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
-}
-code {
-  display: inline-block;
-  background-color: #eee;
-  border-radius: 0.25lh;
-  padding: 0 0.25lh;
-}
-pre code {
-  display: inline;
-  background-color: inherit;
-  border-radius: initial;
-  padding: initial;
-}
-pre {
-  background-color: #eee;
-  border-radius: 10px;
-  padding: 1lh;
-  font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
-}
+	@font-face {
+		font-display: swap;
+		font-family: "JetBrains Mono";
+		font-style: normal;
+		font-weight: 400;
+		src: url("../../common/css/fonts/jetbrains-mono/jetbrains-mono-v18-latin-regular.woff2")
+			format("woff2");
+	}
+	body {
+		font-size: 16px;
+		line-height: 30px;
+		font-family: "Poppins", "Consolas", "Lucida Console", monospace;
+	}
+	code {
+		font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
+	}
+	code {
+		display: inline-block;
+		background-color: #eee;
+		border-radius: 0.25lh;
+		padding: 0 0.25lh;
+	}
+	pre code {
+		display: inline;
+		background-color: inherit;
+		border-radius: initial;
+		padding: initial;
+	}
+	pre {
+		background-color: #eee;
+		border-radius: 10px;
+		padding: 1lh;
+		font-family: "JetBrains Mono", "Consolas", "Lucida Console", monospace;
+	}
 </style>
 
 <h1>What is this?</h1>
-<p><strong>NNotepad</strong> is a browser-based playground for experimenting with <a href="https://webmachinelearning.github.io/webnn/">WebNN</a> expressions without boilerplate code. As of mid-2024, WebNN is available as a prototype in Chromium-based browsers, but requires launching the browser with particular flags enabled.</p>
+<p>
+	<strong>NNotepad</strong> is a browser-based playground for experimenting
+	with
+	<a href="https://webmachinelearning.github.io/webnn/">WebNN</a> expressions
+	without boilerplate code. As of mid-2024, WebNN is available as a prototype
+	in Chromium-based browsers, but requires launching the browser with
+	particular flags enabled.
+</p>
 <h1>Usage</h1>
-<p>Type assignments like <code>foo = 1 + 2</code> or expressions like <code>2 * foo</code>. The result of the last assignment or expression is shown. Some examples:</p>
+<p>
+	Type assignments like <code>foo = 1 + 2</code> or expressions like
+	<code>2 * foo</code>. The result of the last assignment or expression is
+	shown. Some examples:
+</p>
 <pre><code>1 + 2
 # yields 3
 
@@ -87,38 +100,147 @@ B = [[3,3],[5,2]]
 matmul(A,B)
 # yields [[38,17],[26,14]]
 </code></pre>
-<p><strong>NNotepad</strong> translates what you type into script that builds a WebNN graph, evaluates the script, then executes the graph. Click 🔎 to see the generated script.</p>
+<p>
+	<strong>NNotepad</strong> translates what you type into script that builds a
+	WebNN graph, evaluates the script, then executes the graph. Click 🔎 to see
+	the generated script.
+</p>
 <p>Expressions can use:</p>
 <ul>
-<li>Operators <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>==</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>!</code> with precedence, and <code>(</code>,<code>)</code> for grouping.</li>
-<li>Function calls like <code>add()</code>, <code>matmul()</code>, <code>sigmoid()</code>, and so on.</li>
-<li>Numbers like <code>-12.34</code>.</li>
-<li>Tensors like <code>[[1,2],[3,4]]</code>.</li>
-<li>Dictionaries like <code>{alpha: 2, beta: 3}</code>, arrays like <code>[ A, B ]</code>, strings like <code>"float32"</code>, and booleans <code>true</code> and <code>false</code>.</li>
+	<li>
+		Operators <code>+</code>, <code>-</code>, <code>*</code>,
+		<code>/</code>, <code>^</code>, <code>==</code>, <code>&lt;</code>,
+		<code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>,
+		<code>!</code> with precedence, and <code>(</code>,<code>)</code> for
+		grouping.
+	</li>
+	<li>
+		Function calls like <code>add()</code>, <code>matmul()</code>,
+		<code>sigmoid()</code>, and so on.
+	</li>
+	<li>Numbers like <code>-12.34</code>.</li>
+	<li>Tensors like <code>[[1,2],[3,4]]</code>.</li>
+	<li>
+		Dictionaries like <code>{alpha: 2, beta: 3}</code>, arrays like
+		<code>[ A, B ]</code>, strings like <code>"float32"</code>, and booleans
+		<code>true</code> and <code>false</code>.
+	</li>
 </ul>
-<p>Functions and operators are turned into <a href="https://webmachinelearning.github.io/webnn/#mlgraphbuilder"><code>MLGraphBuilder</code></a> method calls.</p>
-<p>Array literals (<code>[...]</code>) and number literals (<code>12.34</code>) are interpreted contextually:</p>
+<p>
+	Functions and operators are turned into
+	<a href="https://webmachinelearning.github.io/webnn/#mlgraphbuilder"
+		><code>MLGraphBuilder</code></a
+	>
+	method calls.
+</p>
+<p>
+	Array literals (<code>[...]</code>) and number literals (<code>12.34</code>)
+	are interpreted contextually:
+</p>
 <ul>
-<li>In assignments, they are intepreted as tensor/scalar constants <a href="https://webmachinelearning.github.io/webnn/#mloperand"><code>MLOperand</code></a>s, e.g. <code>alpha = 12.34</code> (scalar) or <code>T = [1,2,3,4]</code> (tensor).</li>
-<li>As arguments in function calls, they are interpreted depending on the argument definition, e.g. <code>neg(123)</code> (scalar), <code>neg([1,2,3])</code> (tensor), <code>concat([A,B,C],0)</code> (number).</li>
-<li>In options dictionaries inside function calls, they are interpreted depending on the dictionary definition. e.g. <code>linear(123, {alpha: 456, beta: 789})</code> (numbers), <code>transpose(T, {permutation: [0,2,1]})</code> (array of numbers), <code>gemm(A, B, {c: 123})</code> (scalar), <code>gemm(A, B, {c: [123]})</code> (tensor).</li>
-<li>In dictionaries outside of function calls, they are interpreted as arrays/numbers, e.g. <code>options = {alpha: 456, beta: 789})</code>. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"><code>identity()</code></a> e.g. <code>options = {c:identity(4)}  gemm(A, B, options)</code>.</li>
+	<li>
+		In assignments, they are intepreted as tensor/scalar constants
+		<a href="https://webmachinelearning.github.io/webnn/#mloperand"
+			><code>MLOperand</code></a
+		>s, e.g. <code>alpha = 12.34</code> (scalar) or
+		<code>T = [1,2,3,4]</code> (tensor).
+	</li>
+	<li>
+		As arguments in function calls, they are interpreted depending on the
+		argument definition, e.g. <code>neg(123)</code> (scalar),
+		<code>neg([1,2,3])</code> (tensor),
+		<code>concat([A,B,C],0)</code> (number).
+	</li>
+	<li>
+		In options dictionaries inside function calls, they are interpreted
+		depending on the dictionary definition. e.g.
+		<code>linear(123, {alpha: 456, beta: 789})</code> (numbers),
+		<code>transpose(T, {permutation: [0,2,1]})</code> (array of numbers),
+		<code>gemm(A, B, {c: 123})</code> (scalar),
+		<code>gemm(A, B, {c: [123]})</code> (tensor).
+	</li>
+	<li>
+		In dictionaries outside of function calls, they are interpreted as
+		arrays/numbers, e.g. <code>options = {alpha: 456, beta: 789})</code>. To
+		pass a tensor/scalar constant in a dictionary, use a variable or wrap it
+		in
+		<a
+			href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"
+			><code>identity()</code></a
+		>
+		e.g. <code>options = {c:identity(4)} gemm(A, B, options)</code>.
+	</li>
 </ul>
-<p>The default <a href="https://webmachinelearning.github.io/webnn/#enumdef-mloperanddatatype">data type</a> for scalars and tensors is <a href="https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float32"><code>float32</code></a>. To specify a different data type, suffix with one of <code>i8</code>, <code>u8</code>, <code>i32</code>, <code>u32</code>, <code>i64</code>, <code>u64</code>, <code>f16</code>, <code>f32</code>, e.g. <code>123i8</code> or <code>[1,2,3]u32</code>.</p>
+<p>
+	The default
+	<a
+		href="https://webmachinelearning.github.io/webnn/#enumdef-mloperanddatatype"
+		>data type</a
+	>
+	for scalars and tensors is
+	<a
+		href="https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float32"
+		><code>float32</code></a
+	>. To specify a different data type, suffix with one of <code>i8</code>,
+	<code>u8</code>, <code>i32</code>, <code>u32</code>, <code>i64</code>,
+	<code>u64</code>, <code>f16</code>, <code>f32</code>, e.g.
+	<code>123i8</code> or <code>[1,2,3]u32</code>.
+</p>
 <h1>Helpers</h1>
-<p>In addition to WebNN <a href="https://webmachinelearning.github.io/webnn/#mlgraphbuilder"><code>MLGraphBuilder</code></a> methods, you can use these helpers:</p>
+<p>
+	In addition to WebNN
+	<a href="https://webmachinelearning.github.io/webnn/#mlgraphbuilder"
+		><code>MLGraphBuilder</code></a
+	>
+	methods, you can use these helpers:
+</p>
 <ul>
-<li><strong>load(<em>url</em>, <em>shape</em>, <em>dataType</em>)</strong> - fetch a tensor resource. Must be served with appropriate <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> headers. Example: <code>load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16, 16], 'uint8')</code></li>
-<li><strong>zeros(<em>shape</em>, <em>dataType</em>)</strong> - constant zero-filled tensor of the given shape. Example: <code>zeros([2,2,2,2], 'int8')</code></li>
+	<li>
+		<strong>load(<em>url</em>, <em>shape</em>, <em>dataType</em>)</strong> -
+		fetch a tensor resource. Must be served with appropriate
+		<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS"
+			>CORS</a
+		>
+		headers. Example:
+		<code
+			>load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16,
+			16], 'uint8')</code
+		>
+	</li>
+	<li>
+		<strong>zeros(<em>shape</em>, <em>dataType</em>)</strong> - constant
+		zero-filled tensor of the given shape. Example:
+		<code>zeros([2,2,2,2], 'int8')</code>
+	</li>
 </ul>
 <h1>Details &amp; Gotchas</h1>
 <ul>
-<li><a href="https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float16"><code>float16</code></a> support (and the <code>f16</code> suffix) is experimental.</li>
-<li>Whitespace including line breaks is ignored.</li>
-<li>Parsing around the "unary minus" operator can be surprising. Wrap expressions e.g. <code>(-a)</code> if you get unexpected errors.</li>
-<li>If output is a constant, it will be wrapped with <a href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"><code>identity()</code></a> if your back-end supports it. Otherwise, you must introduce a supported expression.</li>
+	<li>
+		<a
+			href="https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float16"
+			><code>float16</code></a
+		>
+		support (and the <code>f16</code> suffix) is experimental.
+	</li>
+	<li>Whitespace including line breaks is ignored.</li>
+	<li>
+		Parsing around the "unary minus" operator can be surprising. Wrap
+		expressions e.g. <code>(-a)</code> if you get unexpected errors.
+	</li>
+	<li>
+		If output is a constant, it will be wrapped with
+		<a
+			href="https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity"
+			><code>identity()</code></a
+		>
+		if your back-end supports it. Otherwise, you must introduce a supported
+		expression.
+	</li>
 </ul>
-<p>What ops are supported, and with what data types, depends entirely on your browser's WebNN implementation. Here be dragons!</p>
+<p>
+	What ops are supported, and with what data types, depends entirely on your
+	browser's WebNN implementation. Here be dragons!
+</p>
 <h1>Parsing &amp; Grammar</h1>
 <pre><code>Anything after # or // on a line is ignored (outside other tokens)
 

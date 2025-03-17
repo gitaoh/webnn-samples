@@ -15,7 +15,9 @@ Following this [guide](https://medium.com/@estebanuri/converting-sandbergs-facen
 Use ['tflite2onnx'](https://github.com/onnx/tensorflow-onnx) tool to convert FaceNet TFLite model to ONNX model:
 
 ```
+
 python -m tf2onnx.convert --tflite facenet.tflite --output facenet.onnx --inputs-as-nchw input_1 --inputs input_1
+
 ```
 
 ### Usage
@@ -33,3 +35,4 @@ Here we detect every frame in a live camera, click 'LIVE CAMERA' tab, allow the 
 Switch model or layout to check variance predict result.
 
 You could also click 'Pick Faces Image' button to choose your local images to recognize faces.
+```

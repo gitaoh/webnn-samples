@@ -1,12 +1,20 @@
 import {
-  compileShader,
-  createPiplelineStageProgram,
-  glsl,
-} from '../helpers/webglHelper.js';
+	compileShader,
+	createPiplelineStageProgram,
+	glsl,
+} from "../helpers/webglHelper.js";
 
 export function buildJointBilateralFilterStage(
-    gl, vertexShader, positionBuffer, texCoordBuffer, inputTexture, inputResolution, outputTexture, canvas) {
-  const fragmentShaderSource = glsl`#version 300 es
+	gl,
+	vertexShader,
+	positionBuffer,
+	texCoordBuffer,
+	inputTexture,
+	inputResolution,
+	outputTexture,
+	canvas,
+) {
+	const fragmentShaderSource = glsl`#version 300 es
 
     precision highp float;
 
@@ -58,93 +66,93 @@ export function buildJointBilateralFilterStage(
     }
   `;
 
-  const [segmentationWidth, segmentationHeight] = inputResolution;
-  const { width: outputWidth, height: outputHeight } = canvas;
-  const texelWidth = 1 / outputWidth;
-  const texelHeight = 1 / outputHeight;
+	const [segmentationWidth, segmentationHeight] = inputResolution;
+	const { width: outputWidth, height: outputHeight } = canvas;
+	const texelWidth = 1 / outputWidth;
+	const texelHeight = 1 / outputHeight;
 
-  const fragmentShader = compileShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    fragmentShaderSource,
-  );
-  const program = createPiplelineStageProgram(
-    gl,
-    vertexShader,
-    fragmentShader,
-    positionBuffer,
-    texCoordBuffer,
-  );
-  const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame');
-  const segmentationMaskLocation = gl.getUniformLocation(
-    program,
-    'u_segmentationMask',
-  );
-  const texelSizeLocation = gl.getUniformLocation(program, 'u_texelSize');
-  const stepLocation = gl.getUniformLocation(program, 'u_step');
-  const radiusLocation = gl.getUniformLocation(program, 'u_radius');
-  const offsetLocation = gl.getUniformLocation(program, 'u_offset');
-  const sigmaTexelLocation = gl.getUniformLocation(program, 'u_sigmaTexel');
-  const sigmaColorLocation = gl.getUniformLocation(program, 'u_sigmaColor');
+	const fragmentShader = compileShader(
+		gl,
+		gl.FRAGMENT_SHADER,
+		fragmentShaderSource,
+	);
+	const program = createPiplelineStageProgram(
+		gl,
+		vertexShader,
+		fragmentShader,
+		positionBuffer,
+		texCoordBuffer,
+	);
+	const inputFrameLocation = gl.getUniformLocation(program, "u_inputFrame");
+	const segmentationMaskLocation = gl.getUniformLocation(
+		program,
+		"u_segmentationMask",
+	);
+	const texelSizeLocation = gl.getUniformLocation(program, "u_texelSize");
+	const stepLocation = gl.getUniformLocation(program, "u_step");
+	const radiusLocation = gl.getUniformLocation(program, "u_radius");
+	const offsetLocation = gl.getUniformLocation(program, "u_offset");
+	const sigmaTexelLocation = gl.getUniformLocation(program, "u_sigmaTexel");
+	const sigmaColorLocation = gl.getUniformLocation(program, "u_sigmaColor");
 
-  const frameBuffer = gl.createFramebuffer();
-  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
-  gl.framebufferTexture2D(
-    gl.FRAMEBUFFER,
-    gl.COLOR_ATTACHMENT0,
-    gl.TEXTURE_2D,
-    outputTexture,
-    0,
-  );
+	const frameBuffer = gl.createFramebuffer();
+	gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+	gl.framebufferTexture2D(
+		gl.FRAMEBUFFER,
+		gl.COLOR_ATTACHMENT0,
+		gl.TEXTURE_2D,
+		outputTexture,
+		0,
+	);
 
-  gl.useProgram(program);
-  gl.uniform1i(inputFrameLocation, 0);
-  gl.uniform1i(segmentationMaskLocation, 1);
-  gl.uniform2f(texelSizeLocation, texelWidth, texelHeight);
+	gl.useProgram(program);
+	gl.uniform1i(inputFrameLocation, 0);
+	gl.uniform1i(segmentationMaskLocation, 1);
+	gl.uniform2f(texelSizeLocation, texelWidth, texelHeight);
 
-  const render = function() {
-    gl.viewport(0, 0, outputWidth, outputHeight);
-    gl.useProgram(program);
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, inputTexture);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  };
+	const render = function () {
+		gl.viewport(0, 0, outputWidth, outputHeight);
+		gl.useProgram(program);
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, inputTexture);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	};
 
-  const updateSigmaSpace = function(sigmaSpace) {
-    sigmaSpace *= Math.max(
-      outputWidth / segmentationWidth,
-      outputHeight / segmentationHeight,
-    );
+	const updateSigmaSpace = function (sigmaSpace) {
+		sigmaSpace *= Math.max(
+			outputWidth / segmentationWidth,
+			outputHeight / segmentationHeight,
+		);
 
-    const kSparsityFactor = 0.66; // Higher is more sparse.
-    const sparsity = Math.max(1, Math.sqrt(sigmaSpace) * kSparsityFactor);
-    const step = sparsity;
-    const radius = sigmaSpace;
-    const offset = step > 1 ? step * 0.5 : 0;
-    const sigmaTexel = Math.max(texelWidth, texelHeight) * sigmaSpace;
+		const kSparsityFactor = 0.66; // Higher is more sparse.
+		const sparsity = Math.max(1, Math.sqrt(sigmaSpace) * kSparsityFactor);
+		const step = sparsity;
+		const radius = sigmaSpace;
+		const offset = step > 1 ? step * 0.5 : 0;
+		const sigmaTexel = Math.max(texelWidth, texelHeight) * sigmaSpace;
 
-    gl.useProgram(program);
-    gl.uniform1f(stepLocation, step);
-    gl.uniform1f(radiusLocation, radius);
-    gl.uniform1f(offsetLocation, offset);
-    gl.uniform1f(sigmaTexelLocation, sigmaTexel);
-  };
+		gl.useProgram(program);
+		gl.uniform1f(stepLocation, step);
+		gl.uniform1f(radiusLocation, radius);
+		gl.uniform1f(offsetLocation, offset);
+		gl.uniform1f(sigmaTexelLocation, sigmaTexel);
+	};
 
-  const updateSigmaColor = function(sigmaColor) {
-    gl.useProgram(program);
-    gl.uniform1f(sigmaColorLocation, sigmaColor);
-  };
+	const updateSigmaColor = function (sigmaColor) {
+		gl.useProgram(program);
+		gl.uniform1f(sigmaColorLocation, sigmaColor);
+	};
 
-  const cleanUp = function() {
-    gl.deleteFramebuffer(frameBuffer);
-    gl.deleteProgram(program);
-    gl.deleteShader(fragmentShader);
-  };
-  // Ensures default values are configured to prevent infinite
-  // loop in fragment shader
-  updateSigmaSpace(0);
-  updateSigmaColor(0);
+	const cleanUp = function () {
+		gl.deleteFramebuffer(frameBuffer);
+		gl.deleteProgram(program);
+		gl.deleteShader(fragmentShader);
+	};
+	// Ensures default values are configured to prevent infinite
+	// loop in fragment shader
+	updateSigmaSpace(0);
+	updateSigmaColor(0);
 
-  return { render, updateSigmaSpace, updateSigmaColor, cleanUp }
+	return { render, updateSigmaSpace, updateSigmaColor, cleanUp };
 }

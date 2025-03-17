@@ -1,6 +1,6 @@
-
-const context =
-    await navigator.ml.createContext({powerPreference: 'low-power'});
+const context = await navigator.ml.createContext({
+	powerPreference: 'low-power',
+});
 
 // The following code builds a graph as:
 // constant1 ---+
@@ -18,7 +18,11 @@ const TENSOR_SIZE = 8;
 const builder = new MLGraphBuilder(context);
 
 // Create MLOperandDescriptor object.
-const desc = {dataType: 'float32', dimensions: TENSOR_DIMS, shape: TENSOR_DIMS};
+const desc = {
+	dataType: 'float32',
+	dimensions: TENSOR_DIMS,
+	shape: TENSOR_DIMS,
+};
 
 // constant1 is a constant MLOperand with the value 0.5.
 const constantBuffer1 = new Float32Array(TENSOR_SIZE).fill(0.5);
@@ -45,7 +49,7 @@ const intermediateOutput2 = builder.add(constant2, input2);
 const output = builder.mul(intermediateOutput1, intermediateOutput2);
 
 // Compile the constructed graph.
-const graph = await builder.build({'output': output});
+const graph = await builder.build({output: output});
 
 // Setup the input buffers with value 1.
 const inputBuffer1 = new Float32Array(TENSOR_SIZE).fill(1);
@@ -59,18 +63,18 @@ context.writeTensor(inputTensor1, inputBuffer1);
 context.writeTensor(inputTensor2, inputBuffer2);
 
 const outputTensor = await context.createTensor({
-  ...desc,
-  usage: MLTensorUsage.READ,
-  readable: true,
-  writable: false,
+	...desc,
+	usage: MLTensorUsage.READ,
+	readable: true,
+	writable: false,
 });
 
 // Execute the compiled graph with the specified inputs.
 const inputs = {
-  'input1': inputTensor1,
-  'input2': inputTensor2,
+	input1: inputTensor1,
+	input2: inputTensor2,
 };
-const outputs = {'output': outputTensor};
+const outputs = {output: outputTensor};
 context.dispatch(graph, inputs, outputs);
 
 const results = await context.readTensor(outputTensor);

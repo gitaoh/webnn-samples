@@ -1,13 +1,19 @@
 import {
-  compileShader,
-  createPiplelineStageProgram,
-  createTexture,
-  glsl,
-} from '../helpers/webglHelper.js';
+	compileShader,
+	createPiplelineStageProgram,
+	createTexture,
+	glsl,
+} from "../helpers/webglHelper.js";
 
 export function buildBackgroundImageStage(
-    gl, positionBuffer, texCoordBuffer, personMaskTexture, backgroundImage, canvas) {
-  const vertexShaderSource = glsl`#version 300 es
+	gl,
+	positionBuffer,
+	texCoordBuffer,
+	personMaskTexture,
+	backgroundImage,
+	canvas,
+) {
+	const vertexShaderSource = glsl`#version 300 es
 
     uniform vec2 u_backgroundScale;
     uniform vec2 u_backgroundOffset;
@@ -26,7 +32,7 @@ export function buildBackgroundImageStage(
     }
   `;
 
-  const fragmentShaderSource = glsl`#version 300 es
+	const fragmentShaderSource = glsl`#version 300 es
 
     precision highp float;
 
@@ -63,144 +69,152 @@ export function buildBackgroundImageStage(
     }
   `;
 
-  const { width: outputWidth, height: outputHeight } = canvas;
-  const outputRatio = outputWidth / outputHeight;
+	const { width: outputWidth, height: outputHeight } = canvas;
+	const outputRatio = outputWidth / outputHeight;
 
-  const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-  const fragmentShader = compileShader(
-    gl,
-    gl.FRAGMENT_SHADER,
-    fragmentShaderSource,
-  );
-  const program = createPiplelineStageProgram(
-    gl,
-    vertexShader,
-    fragmentShader,
-    positionBuffer,
-    texCoordBuffer,
-  );
-  const backgroundScaleLocation = gl.getUniformLocation(
-    program,
-    'u_backgroundScale',
-  );
-  const backgroundOffsetLocation = gl.getUniformLocation(
-    program,
-    'u_backgroundOffset',
-  );
-  const inputFrameLocation = gl.getUniformLocation(program, 'u_inputFrame');
-  const personMaskLocation = gl.getUniformLocation(program, 'u_personMask');
-  const backgroundLocation = gl.getUniformLocation(program, 'u_background');
-  const coverageLocation = gl.getUniformLocation(program, 'u_coverage');
-  const lightWrappingLocation = gl.getUniformLocation(
-    program,
-    'u_lightWrapping',
-  );
-  const blendModeLocation = gl.getUniformLocation(program, 'u_blendMode');
+	const vertexShader = compileShader(
+		gl,
+		gl.VERTEX_SHADER,
+		vertexShaderSource,
+	);
+	const fragmentShader = compileShader(
+		gl,
+		gl.FRAGMENT_SHADER,
+		fragmentShaderSource,
+	);
+	const program = createPiplelineStageProgram(
+		gl,
+		vertexShader,
+		fragmentShader,
+		positionBuffer,
+		texCoordBuffer,
+	);
+	const backgroundScaleLocation = gl.getUniformLocation(
+		program,
+		"u_backgroundScale",
+	);
+	const backgroundOffsetLocation = gl.getUniformLocation(
+		program,
+		"u_backgroundOffset",
+	);
+	const inputFrameLocation = gl.getUniformLocation(program, "u_inputFrame");
+	const personMaskLocation = gl.getUniformLocation(program, "u_personMask");
+	const backgroundLocation = gl.getUniformLocation(program, "u_background");
+	const coverageLocation = gl.getUniformLocation(program, "u_coverage");
+	const lightWrappingLocation = gl.getUniformLocation(
+		program,
+		"u_lightWrapping",
+	);
+	const blendModeLocation = gl.getUniformLocation(program, "u_blendMode");
 
-  gl.useProgram(program);
-  gl.uniform2f(backgroundScaleLocation, 1, 1);
-  gl.uniform2f(backgroundOffsetLocation, 0, 0);
-  gl.uniform1i(inputFrameLocation, 0);
-  gl.uniform1i(personMaskLocation, 1);
-  gl.uniform2f(coverageLocation, 0, 1);
-  gl.uniform1f(lightWrappingLocation, 0);
-  gl.uniform1f(blendModeLocation, 0);
+	gl.useProgram(program);
+	gl.uniform2f(backgroundScaleLocation, 1, 1);
+	gl.uniform2f(backgroundOffsetLocation, 0, 0);
+	gl.uniform1i(inputFrameLocation, 0);
+	gl.uniform1i(personMaskLocation, 1);
+	gl.uniform2f(coverageLocation, 0, 1);
+	gl.uniform1f(lightWrappingLocation, 0);
+	gl.uniform1f(blendModeLocation, 0);
 
-  let backgroundTexture = null;
-  // TODO Find a better to handle background being loaded
-  if (backgroundImage === null || backgroundImage === void 0 ? void 0 : backgroundImage.complete) {
-    updateBackgroundImage(backgroundImage);
-  } else if (backgroundImage) {
-    backgroundImage.onload = () => {
-      updateBackgroundImage(backgroundImage);
-    };
-  }
+	let backgroundTexture = null;
+	// TODO Find a better to handle background being loaded
+	if (
+		backgroundImage === null || backgroundImage === void 0
+			? void 0
+			: backgroundImage.complete
+	) {
+		updateBackgroundImage(backgroundImage);
+	} else if (backgroundImage) {
+		backgroundImage.onload = () => {
+			updateBackgroundImage(backgroundImage);
+		};
+	}
 
-  const render = function() {
-    gl.viewport(0, 0, outputWidth, outputHeight);
-    gl.useProgram(program);
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, personMaskTexture);
-    if (backgroundTexture !== null) {
-      gl.activeTexture(gl.TEXTURE2);
-      gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
-      // TODO Handle correctly the background not loaded yet
-      gl.uniform1i(backgroundLocation, 2);
-    }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  };
+	const render = function () {
+		gl.viewport(0, 0, outputWidth, outputHeight);
+		gl.useProgram(program);
+		gl.activeTexture(gl.TEXTURE1);
+		gl.bindTexture(gl.TEXTURE_2D, personMaskTexture);
+		if (backgroundTexture !== null) {
+			gl.activeTexture(gl.TEXTURE2);
+			gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+			// TODO Handle correctly the background not loaded yet
+			gl.uniform1i(backgroundLocation, 2);
+		}
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	};
 
-  function updateBackgroundImage(backgroundImage) {
-    backgroundTexture = createTexture(
-      gl,
-      gl.RGBA8,
-      backgroundImage.naturalWidth,
-      backgroundImage.naturalHeight,
-      gl.LINEAR,
-      gl.LINEAR,
-    );
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      backgroundImage.naturalWidth,
-      backgroundImage.naturalHeight,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      backgroundImage,
-    );
+	function updateBackgroundImage(backgroundImage) {
+		backgroundTexture = createTexture(
+			gl,
+			gl.RGBA8,
+			backgroundImage.naturalWidth,
+			backgroundImage.naturalHeight,
+			gl.LINEAR,
+			gl.LINEAR,
+		);
+		gl.texSubImage2D(
+			gl.TEXTURE_2D,
+			0,
+			0,
+			0,
+			backgroundImage.naturalWidth,
+			backgroundImage.naturalHeight,
+			gl.RGBA,
+			gl.UNSIGNED_BYTE,
+			backgroundImage,
+		);
 
-    let xOffset = 0;
-    let yOffset = 0;
-    let backgroundWidth = backgroundImage.naturalWidth;
-    let backgroundHeight = backgroundImage.naturalHeight;
-    const backgroundRatio = backgroundWidth / backgroundHeight;
-    if (backgroundRatio < outputRatio) {
-      backgroundHeight = backgroundWidth / outputRatio;
-      yOffset = (backgroundImage.naturalHeight - backgroundHeight) / 2;
-    } else {
-      backgroundWidth = backgroundHeight * outputRatio;
-      xOffset = (backgroundImage.naturalWidth - backgroundWidth) / 2;
-    }
+		let xOffset = 0;
+		let yOffset = 0;
+		let backgroundWidth = backgroundImage.naturalWidth;
+		let backgroundHeight = backgroundImage.naturalHeight;
+		const backgroundRatio = backgroundWidth / backgroundHeight;
+		if (backgroundRatio < outputRatio) {
+			backgroundHeight = backgroundWidth / outputRatio;
+			yOffset = (backgroundImage.naturalHeight - backgroundHeight) / 2;
+		} else {
+			backgroundWidth = backgroundHeight * outputRatio;
+			xOffset = (backgroundImage.naturalWidth - backgroundWidth) / 2;
+		}
 
-    const xScale = backgroundWidth / backgroundImage.naturalWidth;
-    const yScale = backgroundHeight / backgroundImage.naturalHeight;
-    xOffset /= backgroundImage.naturalWidth;
-    yOffset /= backgroundImage.naturalHeight;
+		const xScale = backgroundWidth / backgroundImage.naturalWidth;
+		const yScale = backgroundHeight / backgroundImage.naturalHeight;
+		xOffset /= backgroundImage.naturalWidth;
+		yOffset /= backgroundImage.naturalHeight;
 
-    gl.uniform2f(backgroundScaleLocation, xScale, yScale);
-    gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset);
-  }
+		gl.uniform2f(backgroundScaleLocation, xScale, yScale);
+		gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset);
+	}
 
-  const updateCoverage = function(coverage) {
-    gl.useProgram(program);
-    gl.uniform2f(coverageLocation, coverage[0], coverage[1]);
-  };
+	const updateCoverage = function (coverage) {
+		gl.useProgram(program);
+		gl.uniform2f(coverageLocation, coverage[0], coverage[1]);
+	};
 
-  const updateLightWrapping = function(lightWrapping) {
-    gl.useProgram(program);
-    gl.uniform1f(lightWrappingLocation, lightWrapping);
-  };
+	const updateLightWrapping = function (lightWrapping) {
+		gl.useProgram(program);
+		gl.uniform1f(lightWrappingLocation, lightWrapping);
+	};
 
-  const updateBlendMode = function(blendMode) {
-    gl.useProgram(program);
-    gl.uniform1f(blendModeLocation, blendMode === 'screen' ? 0 : 1);
-  };
+	const updateBlendMode = function (blendMode) {
+		gl.useProgram(program);
+		gl.uniform1f(blendModeLocation, blendMode === "screen" ? 0 : 1);
+	};
 
-  const cleanUp = function() {
-    gl.deleteTexture(backgroundTexture);
-    gl.deleteProgram(program);
-    gl.deleteShader(fragmentShader);
-    gl.deleteShader(vertexShader);
-  };
+	const cleanUp = function () {
+		gl.deleteTexture(backgroundTexture);
+		gl.deleteProgram(program);
+		gl.deleteShader(fragmentShader);
+		gl.deleteShader(vertexShader);
+	};
 
-  return {
-    render,
-    updateCoverage,
-    updateLightWrapping,
-    updateBlendMode,
-    cleanUp,
-  };
+	return {
+		render,
+		updateCoverage,
+		updateLightWrapping,
+		updateBlendMode,
+		cleanUp,
+	};
 }

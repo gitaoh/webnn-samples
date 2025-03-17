@@ -10,7 +10,6 @@ SSD MobileNet V2 Face Detection models are trained by Tensorflow Object Detectio
 
 After getting the `frozen_inference_graph.pb`, you can use the following commands by using tensorflow's [`optimize_for_inference`](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/tools/optimize_for_inference.py) tool to convert it to frozen graph.
 
-
 ```
 python3 -m tensorflow.python.tools.optimize_for_inference \
 --input=${download_model_dir}/frozen_inference_graph.pb \
@@ -45,6 +44,7 @@ BoxPredictor_5/BoxEncodingPredictor/BiasAdd,BoxPredictor_5/ClassPredictor/BiasAd
 ```
 
 Use ['tflite2onnx'](https://github.com/jackwish/tflite2onnx) tool to convert tflite model to onnx model:
+
 ```
 tflite2onnx ssd_mobilenetv2_face.tflite ssd_mobilenetv2_face.onnx
 ```
@@ -64,6 +64,7 @@ tflite_convert \
 ```
 
 Use ['tflite2onnx'](https://github.com/jackwish/tflite2onnx) tool to convert tflite model to onnx model:
+
 ```
 tflite2onnx face_landmark.tflite face_landmark.onnx
 ```

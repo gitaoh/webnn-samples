@@ -2,7 +2,6 @@
 
 **NNotepad** is a browser-based playground for experimenting with [WebNN](https://webmachinelearning.github.io/webnn/) expressions without boilerplate code. As of mid-2024, WebNN is available as a prototype in Chromium-based browsers, but requires launching the browser with particular flags enabled.
 
-
 # Usage
 
 Type assignments like `foo = 1 + 2` or expressions like `2 * foo`. The result of the last assignment or expression is shown. Some examples:
@@ -26,41 +25,38 @@ matmul(A,B)
 
 Expressions can use:
 
-* Operators `+`, `-`, `*`, `/`, `^`, `==`, `<`, `<=`, `>`, `>=`, `!` with precedence, and `(`,`)` for grouping.
-* Function calls like `add()`, `matmul()`, `sigmoid()`, and so on.
-* Numbers like `-12.34`.
-* Tensors like `[[1,2],[3,4]]`.
-* Dictionaries like `{alpha: 2, beta: 3}`, arrays like `[ A, B ]`, strings like `"float32"`, and booleans `true` and `false`.
+- Operators `+`, `-`, `*`, `/`, `^`, `==`, `<`, `<=`, `>`, `>=`, `!` with precedence, and `(`,`)` for grouping.
+- Function calls like `add()`, `matmul()`, `sigmoid()`, and so on.
+- Numbers like `-12.34`.
+- Tensors like `[[1,2],[3,4]]`.
+- Dictionaries like `{alpha: 2, beta: 3}`, arrays like `[ A, B ]`, strings like `"float32"`, and booleans `true` and `false`.
 
 Functions and operators are turned into [`MLGraphBuilder`](https://webmachinelearning.github.io/webnn/#mlgraphbuilder) method calls.
 
 Array literals (`[...]`) and number literals (`12.34`) are interpreted contextually:
 
-* In assignments, they are intepreted as tensor/scalar constants [`MLOperand`](https://webmachinelearning.github.io/webnn/#mloperand)s, e.g. `alpha = 12.34` (scalar) or `T = [1,2,3,4]` (tensor).
-* As arguments in function calls, they are interpreted depending on the argument definition, e.g. `neg(123)` (scalar), `neg([1,2,3])` (tensor), `concat([A,B,C],0)` (number).
-* In options dictionaries inside function calls, they are interpreted depending on the dictionary definition. e.g. `linear(123, {alpha: 456, beta: 789})` (numbers), `transpose(T, {permutation: [0,2,1]})` (array of numbers), `gemm(A, B, {c: 123})` (scalar), `gemm(A, B, {c: [123]})` (tensor).
-* In dictionaries outside of function calls, they are interpreted as arrays/numbers, e.g. `options = {alpha: 456, beta: 789})`. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) e.g. `options = {c:identity(4)}  gemm(A, B, options)`.
+- In assignments, they are intepreted as tensor/scalar constants [`MLOperand`](https://webmachinelearning.github.io/webnn/#mloperand)s, e.g. `alpha = 12.34` (scalar) or `T = [1,2,3,4]` (tensor).
+- As arguments in function calls, they are interpreted depending on the argument definition, e.g. `neg(123)` (scalar), `neg([1,2,3])` (tensor), `concat([A,B,C],0)` (number).
+- In options dictionaries inside function calls, they are interpreted depending on the dictionary definition. e.g. `linear(123, {alpha: 456, beta: 789})` (numbers), `transpose(T, {permutation: [0,2,1]})` (array of numbers), `gemm(A, B, {c: 123})` (scalar), `gemm(A, B, {c: [123]})` (tensor).
+- In dictionaries outside of function calls, they are interpreted as arrays/numbers, e.g. `options = {alpha: 456, beta: 789})`. To pass a tensor/scalar constant in a dictionary, use a variable or wrap it in [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) e.g. `options = {c:identity(4)}  gemm(A, B, options)`.
 
 The default [data type](https://webmachinelearning.github.io/webnn/#enumdef-mloperanddatatype) for scalars and tensors is [`float32`](https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float32). To specify a different data type, suffix with one of `i8`, `u8`, `i32`, `u32`, `i64`, `u64`, `f16`, `f32`, e.g. `123i8` or `[1,2,3]u32`.
-
 
 # Helpers
 
 In addition to WebNN [`MLGraphBuilder`](https://webmachinelearning.github.io/webnn/#mlgraphbuilder) methods, you can use these helpers:
 
-* **load(_url_, _shape_, _dataType_)** - fetch a tensor resource. Must be served with appropriate [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers. Example: `load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16, 16], 'uint8')`
-* **zeros(_shape_, _dataType_)** - constant zero-filled tensor of the given shape. Example: `zeros([2,2,2,2], 'int8')`
-
+- **load(_url_, _shape_, _dataType_)** - fetch a tensor resource. Must be served with appropriate [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) headers. Example: `load('https://www.random.org/cgi-bin/randbyte?nbytes=256', [16, 16], 'uint8')`
+- **zeros(_shape_, _dataType_)** - constant zero-filled tensor of the given shape. Example: `zeros([2,2,2,2], 'int8')`
 
 # Details & Gotchas
 
-* [`float16`](https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float16) support (and the `f16` suffix) is experimental.
-* Whitespace including line breaks is ignored.
-* Parsing around the "unary minus" operator can be surprising. Wrap expressions e.g. `(-a)` if you get unexpected errors.
-* If output is a constant, it will be wrapped with [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) if your back-end supports it. Otherwise, you must introduce a supported expression.
+- [`float16`](https://webmachinelearning.github.io/webnn/#dom-mloperanddatatype-float16) support (and the `f16` suffix) is experimental.
+- Whitespace including line breaks is ignored.
+- Parsing around the "unary minus" operator can be surprising. Wrap expressions e.g. `(-a)` if you get unexpected errors.
+- If output is a constant, it will be wrapped with [`identity()`](https://webmachinelearning.github.io/webnn/#dom-mlgraphbuilder-identity) if your back-end supports it. Otherwise, you must introduce a supported expression.
 
 What ops are supported, and with what data types, depends entirely on your browser's WebNN implementation. Here be dragons!
-
 
 # Parsing & Grammar
 
@@ -104,4 +100,3 @@ array = '[' [ expr { ',' expr } ] ']'
 dict = '{' [ propdef { ',' propdef  } [ ',' ] ] '}'
 propdef = ( identifier | string ) ':' expr
 ```
-

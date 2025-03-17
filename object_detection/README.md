@@ -4,7 +4,6 @@ Object detection is the process of detecting instances of semantic objects of a 
 
 This example shows how the Tiny YOLO v2 model from [YAD2K project](https://github.com/allanzelener/YAD2K) and [ONNX model zoo](https://github.com/onnx/models/blob/master/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.tar.gz), [SSD MobileNet V1 models](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2018_01_28.tar.gz) may be implemented by using the WebNN API. (Note: Tiny YOLO V2 models are trained on the [Pascal VOC](http://host.robots.ox.ac.uk/pascal/VOC/) dataset, SSD MobileNet V1 models are trained on the [COCO](https://cocodataset.org/#home) dataset.)
 
-
 ### How to Generate SSD MobileNet V1 models
 
 Since the original [SSD MobileNet V1 model](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_2018_01_28.tar.gz) contains customized preprocess and postprocess graphs, we only implement a cut model with WebNN API, you can generate the cut model via following commands:
@@ -34,6 +33,7 @@ tflite_convert \
 ```
 
 Use ['tflite2onnx'](https://github.com/jackwish/tflite2onnx) tool to convert tflite model to onnx model:
+
 ```
 tflite2onnx ssd_mobilenet_v1_coco.tflite ssd_mobilenet_v1_coco.onnx
 ```
