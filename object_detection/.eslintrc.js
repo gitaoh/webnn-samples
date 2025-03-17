@@ -1,6 +1,6 @@
 module.exports = {
 	globals: {
-		MLGraphBuilder: 'readonly',
-		MLTensorUsage: 'readonly',
+		MLGraphBuilder: "readonly",
+		MLTensorUsage: "readonly",
 	},
 };

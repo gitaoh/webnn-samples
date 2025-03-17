@@ -1,10 +1,10 @@
 module.exports = {
 	globals: {
-		importScripts: 'readonly',
-		tf: 'readonly',
-		tflite_model_runner_ModuleFactory: 'readonly',
+		importScripts: "readonly",
+		tf: "readonly",
+		tflite_model_runner_ModuleFactory: "readonly",
 	},
 	rules: {
-		'new-cap': 0,
+		"new-cap": 0,
 	},
 };

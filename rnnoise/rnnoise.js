@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import {buildConstantByNpy} from '../common/utils.js';
+import { buildConstantByNpy } from "../common/utils.js";
 
 export class RNNoise {
 	constructor(modelPath, batchSize, frames) {
@@ -35,63 +35,63 @@ export class RNNoise {
 		// Create constants by loading pre-trained data from .npy files.
 		const inputDenseKernel0 = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'input_dense_kernel_0.npy',
+			this.baseUrl_ + "input_dense_kernel_0.npy",
 		);
 		const inputDenseBias0 = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'input_dense_bias_0.npy',
+			this.baseUrl_ + "input_dense_bias_0.npy",
 		);
 		const vadGruW = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'vad_gru_W.npy',
+			this.baseUrl_ + "vad_gru_W.npy",
 		);
 		const vadGruR = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'vad_gru_R.npy',
+			this.baseUrl_ + "vad_gru_R.npy",
 		);
 		const vadGruBData = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'vad_gru_B.npy',
+			this.baseUrl_ + "vad_gru_B.npy",
 		);
 		const noiseGruW = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'noise_gru_W.npy',
+			this.baseUrl_ + "noise_gru_W.npy",
 		);
 		const noiseGruR = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'noise_gru_R.npy',
+			this.baseUrl_ + "noise_gru_R.npy",
 		);
 		const noiseGruBData = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'noise_gru_B.npy',
+			this.baseUrl_ + "noise_gru_B.npy",
 		);
 		const denoiseGruW = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'denoise_gru_W.npy',
+			this.baseUrl_ + "denoise_gru_W.npy",
 		);
 		const denoiseGruR = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'denoise_gru_R.npy',
+			this.baseUrl_ + "denoise_gru_R.npy",
 		);
 		const denoiseGruBData = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'denoise_gru_B.npy',
+			this.baseUrl_ + "denoise_gru_B.npy",
 		);
 		const denoiseOutputKernel0 = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'denoise_output_kernel_0.npy',
+			this.baseUrl_ + "denoise_output_kernel_0.npy",
 		);
 		const denoiseOutputBias0 = await buildConstantByNpy(
 			this.builder_,
-			this.baseUrl_ + 'denoise_output_bias_0.npy',
+			this.baseUrl_ + "denoise_output_bias_0.npy",
 		);
 		// Build up the network.
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: [this.batchSize_, this.frames_, this.featureSize],
 			shape: [this.batchSize_, this.frames_, this.featureSize],
 		};
-		const input = this.builder_.input('input', inputDesc);
+		const input = this.builder_.input("input", inputDesc);
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
 		this.inputTensor_ = await this.context_.createTensor(inputDesc);
@@ -117,12 +117,12 @@ export class RNNoise {
 		);
 
 		const vadGruInitialHDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: [1, this.batchSize_, this.vadGruHiddenSize],
 			shape: [1, this.batchSize_, this.vadGruHiddenSize],
 		};
 		const vadGruInitialH = this.builder_.input(
-			'vadGruInitialH',
+			"vadGruInitialH",
 			vadGruInitialHDesc,
 		);
 		vadGruInitialHDesc.usage = MLTensorUsage.WRITE;
@@ -142,7 +142,7 @@ export class RNNoise {
 				initialHiddenState: vadGruInitialH,
 				returnSequence: true,
 				resetAfter: false,
-				activations: ['sigmoid', 'relu'],
+				activations: ["sigmoid", "relu"],
 			},
 		);
 		const vadGruYTransposed = this.builder_.transpose(vadGruY, {
@@ -172,12 +172,12 @@ export class RNNoise {
 		);
 
 		const noiseGruInitialHDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: [1, this.batchSize_, this.noiseGruHiddenSize],
 			shape: [1, this.batchSize_, this.noiseGruHiddenSize],
 		};
 		const noiseGruInitialH = this.builder_.input(
-			'noiseGruInitialH',
+			"noiseGruInitialH",
 			noiseGruInitialHDesc,
 		);
 		noiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
@@ -197,7 +197,7 @@ export class RNNoise {
 				initialHiddenState: noiseGruInitialH,
 				returnSequence: true,
 				resetAfter: false,
-				activations: ['sigmoid', 'relu'],
+				activations: ["sigmoid", "relu"],
 			},
 		);
 		const noiseGruYTransposed = this.builder_.transpose(noiseGruY, {
@@ -227,12 +227,12 @@ export class RNNoise {
 		);
 
 		const denoiseGruInitialHDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: [1, this.batchSize_, this.denoiseGruHiddenSize],
 			shape: [1, this.batchSize_, this.denoiseGruHiddenSize],
 		};
 		const denoiseGruInitialH = this.builder_.input(
-			'denoiseGruInitialH',
+			"denoiseGruInitialH",
 			denoiseGruInitialHDesc,
 		);
 		denoiseGruInitialHDesc.usage = MLTensorUsage.WRITE;
@@ -253,7 +253,7 @@ export class RNNoise {
 				initialHiddenState: denoiseGruInitialH,
 				returnSequence: true,
 				resetAfter: false,
-				activations: ['sigmoid', 'relu'],
+				activations: ["sigmoid", "relu"],
 			},
 		);
 		const denoiseGruYTransposed = this.builder_.transpose(denoiseGruY, {
@@ -279,7 +279,7 @@ export class RNNoise {
 			this.gainsSize_,
 		];
 		this.denoiseOutputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: denoiseOutputShape,
 			shape: denoiseOutputShape,
 			usage: MLTensorUsage.READ,
@@ -291,7 +291,7 @@ export class RNNoise {
 			this.vadGruHiddenSize,
 		];
 		this.vadGruYHTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: vadGruYHOutputShape,
 			shape: vadGruYHOutputShape,
 			usage: MLTensorUsage.READ,
@@ -303,7 +303,7 @@ export class RNNoise {
 			this.noiseGruHiddenSize,
 		];
 		this.noiseGruYHTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: noiseGruYHOutputShape,
 			shape: noiseGruYHOutputShape,
 			usage: MLTensorUsage.READ,
@@ -315,14 +315,14 @@ export class RNNoise {
 			this.denoiseGruHiddenSize,
 		];
 		this.denoiseGruYHTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: denoiseGruYHOutputShape,
 			shape: denoiseGruYHOutputShape,
 			usage: MLTensorUsage.READ,
 			readable: true,
 		});
 
-		return {denoiseOutput, vadGruYH, noiseGruYH, denoiseGruYH};
+		return { denoiseOutput, vadGruYH, noiseGruYH, denoiseGruYH };
 	}
 
 	async build(outputOperand) {

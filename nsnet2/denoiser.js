@@ -1,6 +1,6 @@
-import {NSNet2} from './nsnet2.js';
-import * as featurelib from './featurelib.js';
-import {getUrlParams, weightsOrigin} from '../common/utils.js';
+import { getUrlParams, weightsOrigin } from "../common/utils.js";
+import * as featurelib from "./featurelib.js";
+import { NSNet2 } from "./nsnet2.js";
 
 export class Denoiser {
 	constructor(batchSize, frames, sampleRate) {
@@ -9,60 +9,60 @@ export class Denoiser {
 			hopfrac: 0.5,
 			fs: sampleRate,
 			mingain: -80,
-			feattype: 'LogPow',
+			feattype: "LogPow",
 		};
 		this.batchSize = batchSize;
 		this.frames = frames;
 		this.nsnet = new NSNet2();
-		this.mingain = 10 ** (this.cfg['mingain'] / 20);
+		this.mingain = 10 ** (this.cfg["mingain"] / 20);
 		this.logger = null;
 	}
 
 	log(message, sep = false, append = true) {
 		if (this.logger) {
 			this.logger.innerHTML =
-				(append ? this.logger.innerHTML : '') +
+				(append ? this.logger.innerHTML : "") +
 				message +
-				(sep ? '<br>' : '');
+				(sep ? "<br>" : "");
 		}
 	}
 
 	async prepare(deviceType) {
 		return new Promise((resolve, reject) => {
-			this.log(' - Loading weights... ');
+			this.log(" - Loading weights... ");
 			const start = performance.now();
 			const weightsUrl =
-				weightsOrigin() + '/test-data/models/nsnet2/weights/';
+				weightsOrigin() + "/test-data/models/nsnet2/weights/";
 			const powerPreference = getUrlParams()[1];
-			const contextOptions = {deviceType};
+			const contextOptions = { deviceType };
 			if (powerPreference) {
-				contextOptions['powerPreference'] = powerPreference;
+				contextOptions["powerPreference"] = powerPreference;
 			}
 			const numThreads = getUrlParams()[2];
 			if (numThreads) {
-				contextOptions['numThreads'] = numThreads;
+				contextOptions["numThreads"] = numThreads;
 			}
 			this.nsnet
 				.load(contextOptions, weightsUrl, this.batchSize, this.frames)
 				.then((outputOperand) => {
 					const modelLoadTime = performance.now() - start;
 					this.log(
-						`done in <span class='text-primary'>` +
+						"done in <span class='text-primary'>" +
 							`${modelLoadTime.toFixed(2)}</span> ms.`,
 						true,
 					);
-					this.log(' - Building... ');
+					this.log(" - Building... ");
 					setTimeout(async () => {
 						try {
 							const start = performance.now();
 							await this.nsnet.build(outputOperand);
 							const modelBuildTime = performance.now() - start;
 							this.log(
-								`done in <span class='text-primary'>` +
+								"done in <span class='text-primary'>" +
 									`${modelBuildTime.toFixed(2)}</span> ms.`,
 								true,
 							);
-							this.log(' - Warming up iSTFT... ');
+							this.log(" - Warming up iSTFT... ");
 						} catch (error) {
 							reject(error);
 						}
@@ -72,7 +72,7 @@ export class Denoiser {
 								const start = performance.now();
 								const outSpec = tf.zeros(
 									[161, this.frames],
-									'complex64',
+									"complex64",
 								);
 								const sigOut = featurelib.spec2sig(
 									outSpec,
@@ -81,8 +81,10 @@ export class Denoiser {
 								const spec2SigWarmupTime =
 									performance.now() - start;
 								this.log(
-									`done in <span class='text-primary'>` +
-										`${spec2SigWarmupTime.toFixed(2)}</span> ms.`,
+									"done in <span class='text-primary'>" +
+										`${spec2SigWarmupTime.toFixed(
+											2,
+										)}</span> ms.`,
 									true,
 								);
 								await sigOut.data();
@@ -197,13 +199,15 @@ export class Denoiser {
 			callback(sigData);
 			const progress = (frame + sliceSize / sizePerFrame) / audioFrames;
 			this.log(
-				`Denoising...  ` +
-					`(${lastIteration ? 100 : Math.ceil(progress * 100)}%)<br>` +
-					` - STFT compute time: <span class='text-primary'>` +
+				"Denoising...  " +
+					`(${
+						lastIteration ? 100 : Math.ceil(progress * 100)
+					}%)<br>` +
+					" - STFT compute time: <span class='text-primary'>" +
 					`${calcFeatTime}</span> ms.<br>` +
-					` - NSNet2 compute time: <span class='text-primary'>` +
+					" - NSNet2 compute time: <span class='text-primary'>" +
 					`${computeTime}</span> ms.<br>` +
-					` - iSTFT compute time: <span class='text-primary'>` +
+					" - iSTFT compute time: <span class='text-primary'>" +
 					`${spec2SigTime}</span> ms.`,
 				true,
 				false,
@@ -213,7 +217,8 @@ export class Denoiser {
 		const processTime = (performance.now() - processStart).toFixed(2);
 		this.log(
 			`<b>Done.</b> Processed ${audioFrames} ` +
-				`frames in <span class='text-primary'>${processTime}</span> ms.`,
+				"frames in <span class='text-primary'>" +
+				`${processTime}</span> ms.`,
 			true,
 		);
 	}

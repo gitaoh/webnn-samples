@@ -177,7 +177,7 @@ export function getBoxes(results, margin) {
 }
 
 export function drawBoxes(image, canvas, objBoxes, labels) {
-	const ctx = canvas.getContext('2d');
+	const ctx = canvas.getContext("2d");
 	const imWidth = image.naturalWidth || image.width;
 	const imHeight = image.naturalHeight || image.height;
 	// drawImage
@@ -185,12 +185,12 @@ export function drawBoxes(image, canvas, objBoxes, labels) {
 	ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 	// drawBox
 	const colors = [
-		'#ff0000',
-		'#ffc107',
-		'#00b067',
-		'#704e99',
-		'#ff3860',
-		'#009bea',
+		"#ff0000",
+		"#ffc107",
+		"#00b067",
+		"#704e99",
+		"#ff3860",
+		"#009bea",
 	];
 	objBoxes.forEach((box) => {
 		const label = labels[box[0]];
@@ -203,7 +203,7 @@ export function drawBoxes(image, canvas, objBoxes, labels) {
 		ctx.fillStyle = colors[box[0] % colors.length];
 		ctx.lineWidth = 3;
 		ctx.strokeRect(xmin, ymin, xmax - xmin, ymax - ymin);
-		ctx.font = '20px Arial';
+		ctx.font = "20px Arial";
 		const text = `${label}: ${prob.toFixed(2)}`;
 		const width = ctx.measureText(text).width;
 		if (xmin >= 2 && ymin >= parseInt(ctx.font, 10)) {
@@ -213,13 +213,13 @@ export function drawBoxes(image, canvas, objBoxes, labels) {
 				width + 4,
 				parseInt(ctx.font, 10),
 			);
-			ctx.fillStyle = 'white';
-			ctx.textAlign = 'start';
+			ctx.fillStyle = "white";
+			ctx.textAlign = "start";
 			ctx.fillText(text, xmin, ymin - 3);
 		} else {
 			ctx.fillRect(xmin + 2, ymin, width + 4, parseInt(ctx.font, 10));
-			ctx.fillStyle = 'white';
-			ctx.textAlign = 'start';
+			ctx.fillStyle = "white";
+			ctx.textAlign = "start";
 			ctx.fillText(text, xmin + 2, ymin + 15);
 		}
 	});

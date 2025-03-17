@@ -5,9 +5,9 @@ export function calcFeat(Spec, cfg) {
 	// """compute spectral features"""
 	return tf.tidy(() => {
 		let inpFeat;
-		if (cfg['feattype'] === 'MagSpec') {
+		if (cfg["feattype"] === "MagSpec") {
 			inpFeat = tf.abs(Spec);
-		} else if (cfg['feattype'] == 'LogPow') {
+		} else if (cfg["feattype"] == "LogPow") {
 			const pmin = tf.scalar(10 ** -12);
 			const powSpec = tf.pow(tf.abs(Spec), 2);
 			inpFeat = tf.maximum(powSpec, pmin);
@@ -17,7 +17,7 @@ export function calcFeat(Spec, cfg) {
 			}
 			inpFeat = tf.tensor(data, Spec.shape);
 		} else {
-			throw new Error('Feature not implemented.');
+			throw new Error("Feature not implemented.");
 		}
 		return inpFeat;
 	});
@@ -34,17 +34,17 @@ function hanningWindow(N) {
 export function calcSpec(y, params, channel) {
 	// """compute complex spectrum from audio file"""
 	return tf.tidy(() => {
-		const fs = parseInt(params['fs']);
+		const fs = parseInt(params["fs"]);
 
 		// STFT parameters
-		const N_win = parseInt(parseFloat(params['winlen']) * fs);
+		const N_win = parseInt(parseFloat(params["winlen"]) * fs);
 		let N_fft;
-		if ('nfft' in params) {
-			N_fft = parseInt(params['nfft']);
+		if ("nfft" in params) {
+			N_fft = parseInt(params["nfft"]);
 		} else {
-			N_fft = parseInt(parseFloat(params['winlen']) * fs);
+			N_fft = parseInt(parseFloat(params["winlen"]) * fs);
 		}
-		const N_hop = parseInt(N_win * parseFloat(params['hopfrac']));
+		const N_hop = parseInt(N_win * parseFloat(params["hopfrac"]));
 		const Y = tf.signal.stft(y, N_win, N_hop, N_fft, hanningWindow);
 		return Y;
 	});
@@ -55,15 +55,15 @@ export function spec2sig(Spec, params) {
 
 	// # STFT parameters
 	return tf.tidy(() => {
-		const fs = parseInt(params['fs']);
-		const N_win = parseInt(parseFloat(params['winlen']) * fs);
+		const fs = parseInt(params["fs"]);
+		const N_win = parseInt(parseFloat(params["winlen"]) * fs);
 		let N_fft;
-		if ('nfft' in params) {
-			N_fft = parseInt(params['nfft']);
+		if ("nfft" in params) {
+			N_fft = parseInt(params["nfft"]);
 		} else {
-			N_fft = parseInt(parseFloat(params['winlen']) * fs);
+			N_fft = parseInt(parseFloat(params["winlen"]) * fs);
 		}
-		const N_hop = parseInt(N_win * parseFloat(params['hopfrac']));
+		const N_hop = parseInt(N_win * parseFloat(params["hopfrac"]));
 		const win = hanningWindow(N_win);
 		const x = istft(Spec, N_fft, win, N_hop);
 		return x;

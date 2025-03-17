@@ -2,9 +2,9 @@
 // See "Approach" notes below for behavior and limitations.
 
 (function(global) {
-	'use strict';
+	"use strict";
 
-	if ('Float16Array' in global) {
+	if ("Float16Array" in global) {
 		return;
 	}
 
@@ -90,7 +90,7 @@
 		}
 		bits.push(s ? 1 : 0);
 		bits.reverse();
-		let str = bits.join('');
+		let str = bits.join("");
 
 		// Bits to bytes
 		const bytes = [];
@@ -113,7 +113,7 @@
 			}
 		}
 		bits.reverse();
-		const str = bits.join('');
+		const str = bits.join("");
 
 		// Unpack sign, exponent, fraction
 		const bias = (1 << (ebits - 1)) - 1;
@@ -163,17 +163,17 @@
 						}
 					};
 				} else if (
-					typeof property === 'string' &&
+					typeof property === "string" &&
 					isArrayIndex(property)
 				) {
 					const u16 = target[property];
-					return typeof u16 === 'number' ? u16ToF16(u16) : u16;
+					return typeof u16 === "number" ? u16ToF16(u16) : u16;
 				} else {
 					return target[property];
 				}
 			},
 			set(target, property, value, receiver) {
-				if (typeof property === 'string' && isArrayIndex(property)) {
+				if (typeof property === "string" && isArrayIndex(property)) {
 					target[property] = f16ToU16(value);
 					return true;
 				} else {
@@ -261,8 +261,8 @@
 	global.Float16Array = function Float16Array(arg, ...rest) {
 		let target;
 		if (arg instanceof ArrayBuffer) {
-			throw new Error('Constructing from ArrayBuffer not supported');
-		} else if (typeof arg === 'object') {
+			throw new Error("Constructing from ArrayBuffer not supported");
+		} else if (typeof arg === "object") {
 			const arrayLike = arg;
 			const length = Number(arrayLike.length);
 			target = new Uint16Array(length);

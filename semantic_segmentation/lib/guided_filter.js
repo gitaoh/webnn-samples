@@ -1,5 +1,5 @@
-import {WebGLUtils} from './webgl_utils.js';
-import {Shader} from './shader.js';
+import { WebGLUtils } from "./webgl_utils.js";
+import { Shader } from "./shader.js";
 
 /* eslint max-len: ["error", {"code": 95}] */
 
@@ -8,12 +8,12 @@ export class GuidedFilter {
 		this.gl = context;
 		this.utils = new WebGLUtils(context);
 
-		if (!this.gl.getExtension('EXT_color_buffer_float')) {
-			throw new Error('not support EXT_color_buffer_float');
+		if (!this.gl.getExtension("EXT_color_buffer_float")) {
+			throw new Error("not support EXT_color_buffer_float");
 		}
 
-		if (!this.gl.getExtension('OES_texture_float_linear')) {
-			throw new Error('not support OES_texture_float_linear');
+		if (!this.gl.getExtension("OES_texture_float_linear")) {
+			throw new Error("not support OES_texture_float_linear");
 		}
 
 		this.shaders = {};
@@ -89,18 +89,18 @@ export class GuidedFilter {
 		this.shaders.hadamard4 = new Shader(this.gl, vs, fs);
 
 		this.utils.createAndBindTexture({
-			name: 'p',
+			name: "p",
 			filter: this.gl.NEAREST,
 		});
 
 		this.utils.createAndBindTexture({
-			name: 'I',
+			name: "I",
 			filter: this.gl.LINEAR,
 		});
 
-		this.utils.createTexInFrameBuffer('fbo1', [
+		this.utils.createTexInFrameBuffer("fbo1", [
 			{
-				name: 'result1',
+				name: "result1",
 				width: this.subWidth,
 				height: this.subHeight,
 				filter: this.gl.NEAREST,
@@ -109,8 +109,8 @@ export class GuidedFilter {
 			},
 		]);
 		this.shaders.hadamard4.use();
-		this.shaders.hadamard4.set1i('u_p', 0); // texture units 0
-		this.shaders.hadamard4.set1i('u_I', 1); // texture units 1
+		this.shaders.hadamard4.set1i("u_p", 0); // texture units 0
+		this.shaders.hadamard4.set1i("u_I", 1); // texture units 1
 	}
 
 	setupBoxFilterShader_() {
@@ -150,9 +150,9 @@ export class GuidedFilter {
         }`;
 
 		this.shaders.boxFilter = new Shader(this.gl, vs, fs);
-		this.utils.createTexInFrameBuffer('pingpong', [
+		this.utils.createTexInFrameBuffer("pingpong", [
 			{
-				name: 'pingpongTemp',
+				name: "pingpongTemp",
 				width: this.subWidth,
 				height: this.subHeight,
 				filter: this.gl.LINEAR,
@@ -161,9 +161,9 @@ export class GuidedFilter {
 			},
 		]);
 
-		this.utils.createTexInFrameBuffer('fbo2', [
+		this.utils.createTexInFrameBuffer("fbo2", [
 			{
-				name: 'result2',
+				name: "result2",
 				width: this.subWidth,
 				height: this.subHeight,
 				filter: this.gl.LINEAR,
@@ -172,9 +172,9 @@ export class GuidedFilter {
 			},
 		]);
 
-		this.utils.createTexInFrameBuffer('fbo5', [
+		this.utils.createTexInFrameBuffer("fbo5", [
 			{
-				name: 'result5',
+				name: "result5",
 				width: this.width,
 				height: this.height,
 				filter: this.gl.LINEAR,
@@ -211,9 +211,9 @@ export class GuidedFilter {
 
 		this.shaders.hadamard2 = new Shader(this.gl, vs, fs);
 
-		this.utils.createTexInFrameBuffer('fbo3', [
+		this.utils.createTexInFrameBuffer("fbo3", [
 			{
-				name: 'result3',
+				name: "result3",
 				width: this.subWidth,
 				height: this.subHeight,
 				filter: this.gl.NEAREST,
@@ -264,12 +264,12 @@ export class GuidedFilter {
 		this.shaders.covar = new Shader(this.gl, vs, fs);
 
 		this.shaders.covar.use();
-		this.shaders.covar.set1i('result2', 0); // texture units 0
-		this.shaders.covar.set1i('result3', 1); // texture units 1
+		this.shaders.covar.set1i("result2", 0); // texture units 0
+		this.shaders.covar.set1i("result3", 1); // texture units 1
 
-		this.utils.createTexInFrameBuffer('fbo4', [
+		this.utils.createTexInFrameBuffer("fbo4", [
 			{
-				name: 'result4',
+				name: "result4",
 				width: this.subWidth,
 				height: this.subHeight,
 				filter: this.gl.NEAREST,
@@ -316,12 +316,12 @@ export class GuidedFilter {
 		this.shaders.final = new Shader(this.gl, vs, fs);
 
 		this.shaders.final.use();
-		this.shaders.final.set1i('result5', 0); // texture units 0
-		this.shaders.final.set1i('u_I', 1); // texture units 1
+		this.shaders.final.set1i("result5", 0); // texture units 0
+		this.shaders.final.set1i("u_I", 1); // texture units 1
 
-		this.utils.createTexInFrameBuffer('fbo6', [
+		this.utils.createTexInFrameBuffer("fbo6", [
 			{
-				name: 'result6',
+				name: "result6",
 				width: this.width,
 				height: this.height,
 				filter: this.gl.LINEAR,
@@ -330,7 +330,7 @@ export class GuidedFilter {
 	}
 
 	apply(guideImage, input, maskWidth, maskHeight) {
-		this.utils.bindTexture('p');
+		this.utils.bindTexture("p");
 		this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
 		this.gl.texImage2D(
 			this.gl.TEXTURE_2D,
@@ -344,7 +344,7 @@ export class GuidedFilter {
 			input,
 		);
 
-		this.utils.bindTexture('I');
+		this.utils.bindTexture("I");
 		this.gl.texImage2D(
 			this.gl.TEXTURE_2D,
 			0,
@@ -355,52 +355,52 @@ export class GuidedFilter {
 		);
 
 		this.shaders.hadamard4.use();
-		this.utils.bindFramebuffer('fbo1');
-		this.utils.bindInputTextures(['p', 'I']);
+		this.utils.bindFramebuffer("fbo1");
+		this.utils.bindInputTextures(["p", "I"]);
 		this.utils.setViewport(this.subWidth, this.subHeight);
 		this.utils.render();
 
 		this.shaders.boxFilter.use();
-		this.shaders.boxFilter.set1i('first_pass', 1);
-		this.shaders.boxFilter.set1i('radius', this.subRadius);
-		this.utils.bindFramebuffer('pingpong');
-		this.utils.bindInputTextures(['result1']);
+		this.shaders.boxFilter.set1i("first_pass", 1);
+		this.shaders.boxFilter.set1i("radius", this.subRadius);
+		this.utils.bindFramebuffer("pingpong");
+		this.utils.bindInputTextures(["result1"]);
 		this.utils.render();
 
-		this.shaders.boxFilter.set1i('first_pass', 0);
-		this.utils.bindFramebuffer('fbo2');
-		this.utils.bindInputTextures(['pingpongTemp']);
+		this.shaders.boxFilter.set1i("first_pass", 0);
+		this.utils.bindFramebuffer("fbo2");
+		this.utils.bindInputTextures(["pingpongTemp"]);
 		this.utils.render();
 
 		this.shaders.hadamard2.use();
-		this.utils.bindFramebuffer('fbo3');
-		this.utils.bindInputTextures(['result2']);
+		this.utils.bindFramebuffer("fbo3");
+		this.utils.bindInputTextures(["result2"]);
 		this.utils.render();
 
 		this.shaders.covar.use();
-		this.shaders.covar.set1f('epsilon', this.epsilon);
-		this.utils.bindFramebuffer('fbo4');
-		this.utils.bindInputTextures(['result2', 'result3']);
+		this.shaders.covar.set1f("epsilon", this.epsilon);
+		this.utils.bindFramebuffer("fbo4");
+		this.utils.bindInputTextures(["result2", "result3"]);
 		this.utils.render();
 
 		this.shaders.boxFilter.use();
-		this.shaders.boxFilter.set1i('first_pass', 1);
-		this.shaders.boxFilter.set1i('radius', this.subRadius);
-		this.utils.bindFramebuffer('pingpong');
-		this.utils.bindInputTextures(['result4']);
+		this.shaders.boxFilter.set1i("first_pass", 1);
+		this.shaders.boxFilter.set1i("radius", this.subRadius);
+		this.utils.bindFramebuffer("pingpong");
+		this.utils.bindInputTextures(["result4"]);
 		this.utils.render();
 
-		this.shaders.boxFilter.set1i('first_pass', 0);
-		this.utils.bindFramebuffer('fbo5');
-		this.utils.bindInputTextures(['pingpongTemp']);
+		this.shaders.boxFilter.set1i("first_pass", 0);
+		this.utils.bindFramebuffer("fbo5");
+		this.utils.bindInputTextures(["pingpongTemp"]);
 		this.utils.setViewport(this.width, this.height);
 		this.utils.render();
 
 		this.shaders.final.use();
-		this.utils.bindFramebuffer('fbo6');
-		this.utils.bindInputTextures(['result5', 'I']);
+		this.utils.bindFramebuffer("fbo6");
+		this.utils.bindInputTextures(["result5", "I"]);
 		this.utils.render();
 
-		return this.utils.getTexture('result6');
+		return this.utils.getTexture("result6");
 	}
 }

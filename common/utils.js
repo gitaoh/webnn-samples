@@ -1,16 +1,16 @@
-'use strict';
+"use strict";
 
-import {numpy} from './libs/numpy.js';
-import {addAlert} from './ui.js';
+import { numpy } from "./libs/numpy.js";
+import { addAlert } from "./ui.js";
 
 export const isFloat16ArrayAvailable =
-	typeof Float16Array !== 'undefined' && Float16Array.from;
+	typeof Float16Array !== "undefined" && Float16Array.from;
 
 export function weightsOrigin() {
-	if (location.hostname.toLowerCase().indexOf('github.io') > -1) {
-		return 'https://d3i5xkfad89fac.cloudfront.net';
+	if (location.hostname.toLowerCase().indexOf("github.io") > -1) {
+		return "https://d3i5xkfad89fac.cloudfront.net";
 	} else {
-		return '..';
+		return "..";
 	}
 }
 
@@ -30,7 +30,7 @@ export async function getBufferFromUrl(url) {
 		const response = await fetch(url);
 		arrayBuffer = await response.arrayBuffer();
 	} else {
-		const fs = await import('fs');
+		const fs = await import("fs");
 		const uint8Array = await fs.promises.readFile(url);
 		arrayBuffer = uint8Array.buffer;
 	}
@@ -87,25 +87,25 @@ export const toHalf = (function() {
 
 // Convert npy data in original data type to `targetType`, only support
 // 'float32' to 'float16' conversion currently.
-export async function buildConstantByNpy(builder, url, targetType = 'float32') {
+export async function buildConstantByNpy(builder, url, targetType = "float32") {
 	const dataTypeMap = new Map([
 		[
-			'f2',
+			"f2",
 			{
-				type: 'float16',
+				type: "float16",
 				array: isFloat16ArrayAvailable ? Float16Array : Uint16Array,
 			},
 		],
-		['f4', {type: 'float32', array: Float32Array}],
-		['f8', {type: 'float64', array: Float64Array}],
-		['i1', {type: 'int8', array: Int8Array}],
-		['i2', {type: 'int16', array: Int16Array}],
-		['i4', {type: 'int32', array: Int32Array}],
-		['i8', {type: 'int64', array: BigInt64Array}],
-		['u1', {type: 'uint8', array: Uint8Array}],
-		['u2', {type: 'uint16', array: Uint16Array}],
-		['u4', {type: 'uint32', array: Uint32Array}],
-		['u8', {type: 'uint64', array: BigUint64Array}],
+		["f4", { type: "float32", array: Float32Array }],
+		["f8", { type: "float64", array: Float64Array }],
+		["i1", { type: "int8", array: Int8Array }],
+		["i2", { type: "int16", array: Int16Array }],
+		["i4", { type: "int32", array: Int32Array }],
+		["i8", { type: "int64", array: BigInt64Array }],
+		["u1", { type: "uint8", array: Uint8Array }],
+		["u2", { type: "uint16", array: Uint16Array }],
+		["u4", { type: "uint32", array: Uint32Array }],
+		["u8", { type: "uint64", array: BigUint64Array }],
 	]);
 	const response = await fetch(url);
 	const buffer = await response.arrayBuffer();
@@ -117,8 +117,9 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
 	let type = dataTypeMap.get(npArray.dataType).type;
 	const TypedArrayConstructor = dataTypeMap.get(npArray.dataType).array;
 	let typedArray = new TypedArrayConstructor(npArray.data.buffer);
-	if (type === 'float32' && targetType === 'float16') {
-		// Use Float16Array if it is available, othwerwise use Uint16Array instead.
+	if (type === "float32" && targetType === "float16") {
+		// Use Float16Array if it is available,
+		// othwerwise use Uint16Array instead.
 		typedArray = isFloat16ArrayAvailable ?
 			Float16Array.from(typedArray, (v) => v) :
 			Uint16Array.from(typedArray, (v) => toHalf(v));
@@ -130,17 +131,17 @@ export async function buildConstantByNpy(builder, url, targetType = 'float32') {
 		);
 	}
 	return builder.constant(
-		{dataType: type, dimensions: shape, shape},
+		{ dataType: type, dimensions: shape, shape },
 		typedArray,
 	);
 }
 
 // Convert video frame to a canvas element
 export function getVideoFrame(videoElement) {
-	const canvasElement = document.createElement('canvas');
+	const canvasElement = document.createElement("canvas");
 	canvasElement.width = videoElement.videoWidth;
 	canvasElement.height = videoElement.videoHeight;
-	const canvasContext = canvasElement.getContext('2d');
+	const canvasContext = canvasElement.getContext("2d");
 	canvasContext.drawImage(
 		videoElement,
 		0,
@@ -154,7 +155,7 @@ export function getVideoFrame(videoElement) {
 // Get media stream from camera
 export async function getMediaStream() {
 	// Support 'user' facing mode at present
-	const constraints = {audio: false, video: {facingMode: 'user'}};
+	const constraints = { audio: false, video: { facingMode: "user" } };
 	const stream = await navigator.mediaDevices.getUserMedia(constraints);
 	return stream;
 }
@@ -164,7 +165,7 @@ export function stopCameraStream(id, stream) {
 	cancelAnimationFrame(id);
 	if (stream) {
 		stream.getTracks().forEach((track) => {
-			if (track.readyState === 'live' && track.kind === 'video') {
+			if (track.readyState === "live" && track.kind === "video") {
 				track.stop();
 			}
 		});
@@ -219,18 +220,18 @@ export function getInputTensor(inputElement, inputOptions) {
 	const mean = inputOptions.mean || [0, 0, 0, 0];
 	const std = inputOptions.std || [1, 1, 1, 1];
 	const normlizationFlag = inputOptions.norm || false;
-	const channelScheme = inputOptions.channelScheme || 'RGB';
+	const channelScheme = inputOptions.channelScheme || "RGB";
 	const scaledFlag = inputOptions.scaledFlag || false;
 	const inputLayout = inputOptions.inputLayout;
 	const imageChannels = 4; // RGBA
 	const drawOptions = inputOptions.drawOptions;
-	if (inputLayout === 'nhwc') {
+	if (inputLayout === "nhwc") {
 		[height, width, channels] = inputShape.slice(1);
 	}
-	const canvasElement = document.createElement('canvas');
+	const canvasElement = document.createElement("canvas");
 	canvasElement.width = width;
 	canvasElement.height = height;
-	const canvasContext = canvasElement.getContext('2d');
+	const canvasContext = canvasElement.getContext("2d");
 
 	if (drawOptions) {
 		canvasContext.drawImage(
@@ -277,7 +278,7 @@ export function getInputTensor(inputElement, inputOptions) {
 		for (let h = 0; h < height; ++h) {
 			for (let w = 0; w < width; ++w) {
 				let value;
-				if (channelScheme === 'BGR') {
+				if (channelScheme === "BGR") {
 					value =
 						pixels[
 							h * width * imageChannels +
@@ -290,7 +291,7 @@ export function getInputTensor(inputElement, inputOptions) {
 							h * width * imageChannels + w * imageChannels + c
 						];
 				}
-				if (inputLayout === 'nchw') {
+				if (inputLayout === "nchw") {
 					tensor[c * width * height + h * width + w] =
 						(value - mean[c]) / std[c];
 				} else {
@@ -315,33 +316,33 @@ export function getMedianValue(array) {
 export function getUrlParams() {
 	const params = new URLSearchParams(location.search);
 	// Get 'numRuns' param to run inference multiple times
-	let numRuns = params.get('numRuns');
+	let numRuns = params.get("numRuns");
 	numRuns = numRuns === null ? 1 : parseInt(numRuns);
 	if (numRuns < 1) {
-		addAlert(`Ignore the url param: 'numRuns', its value must be >= 1.`);
+		addAlert("Ignore the url param: 'numRuns', its value must be >= 1.");
 		numRuns = 1;
 	}
 
 	// Get 'powerPreference' param to set WebNN's 'MLPowerPreference' option
-	let powerPreference = params.get('powerPreference');
-	const powerPreferences = ['default', 'high-performance', 'low-power'];
+	let powerPreference = params.get("powerPreference");
+	const powerPreferences = ["default", "high-performance", "low-power"];
 
 	if (powerPreference && !powerPreferences.includes(powerPreference)) {
 		addAlert(
-			`Ignore the url param: 'powerPreference', its value must be ` +
-				`one of {'default', 'high-performance', 'low-power'}.`,
+			"Ignore the url param: 'powerPreference', its value must be " +
+				"one of {'default', 'high-performance', 'low-power'}.",
 		);
 		powerPreference = null;
 	}
 
 	// Get 'numThreads' param to set WebNN's 'numThreads' option
-	let numThreads = params.get('numThreads');
+	let numThreads = params.get("numThreads");
 	if (numThreads != null) {
 		numThreads = parseInt(numThreads);
 		if (!Number.isInteger(numThreads) || numThreads < 0) {
 			addAlert(
-				`Ignore the url param: 'numThreads', its value must be ` +
-					`an integer and not less than 0.`,
+				"Ignore the url param: 'numThreads', its value must be " +
+					"an integer and not less than 0.",
 			);
 			numThreads = null;
 		}
@@ -351,10 +352,11 @@ export function getUrlParams() {
 }
 
 export async function isWebNN() {
-	if (typeof MLGraphBuilder !== 'undefined') {
-		// Polyfill MLTensorUsage to make it compatible with old version of Chrome.
-		if (typeof MLTensorUsage == 'undefined') {
-			window.MLTensorUsage = {WEBGPU_INTEROP: 1, READ: 2, WRITE: 4};
+	if (typeof MLGraphBuilder !== "undefined") {
+		// Polyfill MLTensorUsage to make it compatible with old version of
+		// Chrome.
+		if (typeof MLTensorUsage == "undefined") {
+			window.MLTensorUsage = { WEBGPU_INTEROP: 1, READ: 2, WRITE: 4 };
 		}
 		return true;
 	} else {
@@ -363,11 +365,11 @@ export async function isWebNN() {
 }
 
 export function webNNNotSupportMessage() {
-	return 'Your browser does not support WebNN.';
+	return "Your browser does not support WebNN.";
 }
 
 export function webNNNotSupportMessageHTML() {
-	return 'Your browser does not support WebNN. Please refer to <a href="https://github.com/webmachinelearning/webnn-samples/#webnn-installation-guides">WebNN Installation Guides</a> for more details.';
+	return "Your browser does not support WebNN. Please refer to <a href=\"https://github.com/webmachinelearning/webnn-samples/#webnn-installation-guides\">WebNN Installation Guides</a> for more details.";
 }
 
 // Derive from
@@ -410,16 +412,16 @@ function computePadding1DForAutoPad(
 	let paddingBegin;
 	let paddingEnd;
 	switch (autoPad) {
-	case 'same-upper':
+	case "same-upper":
 		paddingBegin = Math.floor(totalPadding / 2);
 		paddingEnd = Math.floor((totalPadding + 1) / 2);
 		break;
-	case 'same-lower':
+	case "same-lower":
 		paddingBegin = Math.floor((totalPadding + 1) / 2);
 		paddingEnd = Math.floor(totalPadding / 2);
 		break;
 	default:
-		throw new Error('The autoPad is invalid.');
+		throw new Error("The autoPad is invalid.");
 	}
 	return [paddingBegin, paddingEnd];
 }
@@ -506,13 +508,13 @@ export function permuteData(array, dims, axes) {
 }
 
 export function getDefaultLayout(deviceType) {
-	if (deviceType.indexOf('cpu') != -1) {
-		return 'nhwc';
+	if (deviceType.indexOf("cpu") != -1) {
+		return "nhwc";
 	} else if (
-		deviceType.indexOf('gpu') != -1 ||
-		deviceType.indexOf('npu') != -1
+		deviceType.indexOf("gpu") != -1 ||
+		deviceType.indexOf("npu") != -1
 	) {
-		return 'nchw';
+		return "nchw";
 	}
 }
 
@@ -530,9 +532,9 @@ export function displayAvailableModels(
 	dataType,
 ) {
 	let models = [];
-	if (dataType == '') {
-		models = models.concat(modelList[deviceType]['float32']);
-		models = models.concat(modelList[deviceType]['float16']);
+	if (dataType == "") {
+		models = models.concat(modelList[deviceType]["float32"]);
+		models = models.concat(modelList[deviceType]["float16"]);
 	} else {
 		models = models.concat(modelList[deviceType][dataType]);
 	}

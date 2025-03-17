@@ -1,29 +1,29 @@
-'use strict';
+"use strict";
 
-import {FaceNetNhwc} from './facenet_nhwc.js';
-import {FaceNetNchw} from './facenet_nchw.js';
-import {SsdMobilenetV2FaceNhwc} from '../facial_landmark_detection/ssd_mobilenetv2_face_nhwc.js';
-import {SsdMobilenetV2FaceNchw} from '../facial_landmark_detection/ssd_mobilenetv2_face_nchw.js';
-import * as ui from '../common/ui.js';
-import * as utils from '../common/utils.js';
-import * as SsdDecoder from '../common/libs/ssdDecoder.js';
-import * as FaceRecognitionUtils from './libs/face_recognition_utils.js';
+import { FaceNetNhwc } from "./facenet_nhwc.js";
+import { FaceNetNchw } from "./facenet_nchw.js";
+import { SsdMobilenetV2FaceNhwc } from "../facial_landmark_detection/ssd_mobilenetv2_face_nhwc.js";
+import { SsdMobilenetV2FaceNchw } from "../facial_landmark_detection/ssd_mobilenetv2_face_nchw.js";
+import * as ui from "../common/ui.js";
+import * as utils from "../common/utils.js";
+import * as SsdDecoder from "../common/libs/ssdDecoder.js";
+import * as FaceRecognitionUtils from "./libs/face_recognition_utils.js";
 
-const searchImgElem = document.getElementById('searchImage');
-const searchCanvasShowElem = document.getElementById('searchCanvasShow');
-const searchCanvasCamShowElem = document.getElementById('cameraShow');
-const targetImgElem = document.getElementById('targetImage');
-const camElem = document.getElementById('camElement');
+const searchImgElem = document.getElementById("searchImage");
+const searchCanvasShowElem = document.getElementById("searchCanvasShow");
+const searchCanvasCamShowElem = document.getElementById("cameraShow");
+const targetImgElem = document.getElementById("targetImage");
+const camElem = document.getElementById("camElement");
 let targetEmbeddings = null;
 let searchEmbeddings = null;
-let fdModelName = '';
-const frModelName = 'facenet';
-let layout = 'nhwc';
+let fdModelName = "";
+const frModelName = "facenet";
+let layout = "nhwc";
 let fdInstanceType = fdModelName + layout;
 let frInstanceType = frModelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
-let inputType = 'image';
+let inputType = "image";
 let fdInstance = null;
 let fdInputOptions;
 let frInstance = null;
@@ -32,37 +32,37 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-let deviceType = '';
-let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let deviceType = "";
+let lastdeviceType = "";
+let backend = "";
+let lastBackend = "";
 let stopRender = true;
 let isRendering = false;
-const disabledSelectors = ['#tabs > li', '.btn'];
+const disabledSelectors = ["#tabs > li", ".btn"];
 
 $(document).ready(async () => {
-	$('.icdisplay').hide();
+	$(".icdisplay").hide();
 	if (await utils.isWebNN()) {
-		$('#webnn_cpu').click();
+		$("#webnn_cpu").click();
 	} else {
 		console.log(utils.webNNNotSupportMessage());
 		ui.addAlert(utils.webNNNotSupportMessageHTML());
 	}
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#backendBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	layout = utils.getDefaultLayout($(e.target).attr('id'));
+	layout = utils.getDefaultLayout($(e.target).attr("id"));
 	await main();
 });
 
-$('#fdModelBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#fdModelBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	fdModelName = $(e.target).attr('id');
+	fdModelName = $(e.target).attr("id");
 	await main();
 });
 
@@ -75,9 +75,9 @@ $('#fdModelBtns .btn').on('change', async (e) => {
 // });
 
 // Click trigger to do inference with <img> element
-$('#img').click(async () => {
-	if (inputType === 'camera') {
-		await ui.showProgressComponent('current', 'pending', 'pending');
+$("#img").click(async () => {
+	if (inputType === "camera") {
+		await ui.showProgressComponent("current", "pending", "pending");
 		await stopCamRender();
 		// Set timeout to leave more time to make sure searchEmbeddings
 		// is clear after switching from camera tab to image tab
@@ -90,47 +90,47 @@ $('#img').click(async () => {
 	} else {
 		return;
 	}
-	inputType = 'image';
+	inputType = "image";
 	searchEmbeddings = null;
 	await main();
 });
 
-$('#targetImgFile').change((e) => {
+$("#targetImgFile").change((e) => {
 	const files = e.target.files;
 	if (files.length > 0) {
-		$('#targetImage').removeAttr('height');
-		$('#targetImage').removeAttr('width');
+		$("#targetImage").removeAttr("height");
+		$("#targetImage").removeAttr("width");
 		targetImgElem.src = URL.createObjectURL(files[0]);
 	}
 });
 
-$('#targetImage').on('load', async () => {
-	if (inputType === 'camera') {
+$("#targetImage").on("load", async () => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
 	targetEmbeddings = null;
 	await main();
 });
 
-$('#searchImgFile').change((e) => {
+$("#searchImgFile").change((e) => {
 	const files = e.target.files;
 	if (files.length > 0) {
-		$('#searchImage').removeAttr('height');
-		$('#searchImage').removeAttr('width');
+		$("#searchImage").removeAttr("height");
+		$("#searchImage").removeAttr("width");
 		searchImgElem.src = URL.createObjectURL(files[0]);
 	}
 });
 
-$('#searchImage').on('load', async () => {
+$("#searchImage").on("load", async () => {
 	searchEmbeddings = null;
 	await main();
 });
 
 // Click trigger to do inference with <video> media element
-$('#cam').click(async () => {
-	if (inputType == 'camera') return;
-	inputType = 'camera';
-	$('.shoulddisplay').hide();
+$("#cam").click(async () => {
+	if (inputType == "camera") return;
+	inputType = "camera";
+	$(".shoulddisplay").hide();
 	await main();
 });
 
@@ -163,12 +163,12 @@ async function renderCamStream() {
 	// Clear search embeddings for each frame
 	searchEmbeddings = null;
 	const inputCanvas = utils.getVideoFrame(camElem);
-	console.log('- Computing... ');
+	console.log("- Computing... ");
 	await predict(targetImgElem, camElem);
 	console.log(`  done in ${computeTime} ms.`);
 	showPerfResult();
 	await drawOutput(inputCanvas, searchCanvasCamShowElem);
-	$('#fps').text(`${(1000 / computeTime).toFixed(0)} FPS`);
+	$("#fps").text(`${(1000 / computeTime).toFixed(0)} FPS`);
 	isRendering = false;
 	if (!stopRender) {
 		rafReq = requestAnimationFrame(renderCamStream);
@@ -198,7 +198,7 @@ async function getEmbeddings(inputElem) {
 	const anchors = SsdDecoder.generateAnchors({});
 	SsdDecoder.decodeOutputBoxTensor({}, fdSsdOutputs.outputBoxTensor, anchors);
 	let [totalDetections, boxesList, scoresList] = SsdDecoder.nonMaxSuppression(
-		{numClasses: 2},
+		{ numClasses: 2 },
 		fdSsdOutputs.outputBoxTensor,
 		fdSsdOutputs.outputClassScoresTensor,
 	);
@@ -233,7 +233,7 @@ async function getEmbeddings(inputElem) {
 		const [...normEmbedding] = Float32Array.from(results);
 		embeddings.push(normEmbedding);
 	}
-	return {computeTime: totalComputeTime, strokedRects, embeddings};
+	return { computeTime: totalComputeTime, strokedRects, embeddings };
 }
 
 async function predict(targetElem, searchElem) {
@@ -258,14 +258,14 @@ async function predict(targetElem, searchElem) {
 }
 
 async function drawOutput(searchElem, searchCanvasShowElem) {
-	$('#inferenceresult').show();
+	$("#inferenceresult").show();
 
 	const targetTextClasses = [];
 	for (let i = 0; i < targetEmbeddings.embeddings.length; i++) {
 		targetTextClasses.push(i + 1);
 	}
 
-	const targetCanvasShowElem = document.getElementById('targetCanvasShow');
+	const targetCanvasShowElem = document.getElementById("targetCanvasShow");
 	SsdDecoder.drawFaceRectangles(
 		targetImgElem,
 		targetCanvasShowElem,
@@ -288,14 +288,14 @@ async function drawOutput(searchElem, searchCanvasShowElem) {
 }
 
 function showPerfResult(medianComputeTime = undefined) {
-	$('#loadTime').html(`${loadTime} ms`);
-	$('#buildTime').html(`${buildTime} ms`);
+	$("#loadTime").html(`${loadTime} ms`);
+	$("#buildTime").html(`${buildTime} ms`);
 	if (medianComputeTime !== undefined) {
-		$('#computeLabel').html('Median inference time:');
-		$('#computeTime').html(`${medianComputeTime.toFixed(2)} ms`);
+		$("#computeLabel").html("Median inference time:");
+		$("#computeTime").html(`${medianComputeTime.toFixed(2)} ms`);
 	} else {
-		$('#computeLabel').html('Inference time:');
-		$('#computeTime').html(`${computeTime.toFixed(2)} ms`);
+		$("#computeLabel").html("Inference time:");
+		$("#computeTime").html(`${computeTime.toFixed(2)} ms`);
 	}
 }
 
@@ -312,12 +312,12 @@ function constructNetObject(type) {
 
 async function main() {
 	try {
-		if (fdModelName === '') return;
-		[backend, deviceType] = $('input[name="backend"]:checked')
-			.attr('id')
-			.split('_');
+		if (fdModelName === "") return;
+		[backend, deviceType] = $("input[name=\"backend\"]:checked")
+			.attr("id")
+			.split("_");
 		ui.handleClick(disabledSelectors, true);
-		if (isFirstTimeLoad) $('#hint').hide();
+		if (isFirstTimeLoad) $("#hint").hide();
 		const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
 		let start;
 		// Only do load() and build() when model first time loads,
@@ -345,14 +345,14 @@ async function main() {
 				`- Model name: ${fdModelName}, Model layout: ${layout} -`,
 			);
 			// UI shows model loading progress
-			await ui.showProgressComponent('current', 'pending', 'pending');
-			console.log('- Loading weights... ');
-			const contextOptions = {deviceType};
+			await ui.showProgressComponent("current", "pending", "pending");
+			console.log("- Loading weights... ");
+			const contextOptions = { deviceType };
 			if (powerPreference) {
-				contextOptions['powerPreference'] = powerPreference;
+				contextOptions["powerPreference"] = powerPreference;
 			}
 			if (numThreads) {
-				contextOptions['numThreads'] = numThreads;
+				contextOptions["numThreads"] = numThreads;
 			}
 			start = performance.now();
 			const [fdOutputOperand, frOutputOperand] = await Promise.all([
@@ -363,8 +363,8 @@ async function main() {
 			loadTime = (performance.now() - start).toFixed(2);
 			console.log(`  done in ${loadTime} ms.`);
 			// UI shows model building progress
-			await ui.showProgressComponent('done', 'current', 'pending');
-			console.log('- Building... ');
+			await ui.showProgressComponent("done", "current", "pending");
+			console.log("- Building... ");
 			start = performance.now();
 			await Promise.all([
 				fdInstance.build(fdOutputOperand),
@@ -374,11 +374,11 @@ async function main() {
 			console.log(`  done in ${buildTime} ms.`);
 		}
 		// UI shows inferencing progress
-		await ui.showProgressComponent('done', 'done', 'current');
-		if (inputType === 'image') {
+		await ui.showProgressComponent("done", "done", "current");
+		if (inputType === "image") {
 			const computeTimeArray = [];
 			let medianComputeTime;
-			console.log('- Computing... ');
+			console.log("- Computing... ");
 			// Do warm up
 			await fdInstance.compute(
 				new Float32Array(utils.sizeOfShape(fdInputOptions.inputShape)),
@@ -402,18 +402,18 @@ async function main() {
 					`  median compute time: ${medianComputeTime.toFixed(2)} ms`,
 				);
 			}
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').hide();
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").hide();
 			ui.readyShowResultComponents();
 			await drawOutput(searchImgElem, searchCanvasShowElem);
 			showPerfResult(medianComputeTime);
-		} else if (inputType === 'camera') {
+		} else if (inputType === "camera") {
 			stream = await utils.getMediaStream();
 			camElem.srcObject = stream;
 			stopRender = false;
 			camElem.onloadeddata = await renderCamStream();
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').show();
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").show();
 			ui.readyShowResultComponents();
 		} else {
 			throw Error(`Unknown inputType ${inputType}`);

@@ -57,9 +57,9 @@ export function getFRClass(targetEmbeddings, searchEmbeddings, options) {
 	for (let i = 0; i < targetEmbeddings.length; i++) {
 		for (let j = 0; j < searchEmbeddings.length; j++) {
 			// Set default status 'unknown' as 'X'
-			results[j] = 'X';
+			results[j] = "X";
 			let distance;
-			if (options.distanceMetric === 'euclidean') {
+			if (options.distanceMetric === "euclidean") {
 				const [...targetEmbeddingsTmp] = Float32Array.from(
 					l2Normalization(targetEmbeddings[i]),
 				);
@@ -70,7 +70,7 @@ export function getFRClass(targetEmbeddings, searchEmbeddings, options) {
 					targetEmbeddingsTmp,
 					searchEmbeddingsTmp,
 				);
-			} else if (options.distanceMetric === 'cosine') {
+			} else if (options.distanceMetric === "cosine") {
 				distance = cosineDistance(
 					targetEmbeddings[i],
 					searchEmbeddings[j],
@@ -98,7 +98,7 @@ export function getFRClass(targetEmbeddings, searchEmbeddings, options) {
 			}
 		}
 
-		if (results[key1] === 'X' && minDis < options.threshold) {
+		if (results[key1] === "X" && minDis < options.threshold) {
 			results[key1] = parseInt(num) + 1;
 		}
 	}

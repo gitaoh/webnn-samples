@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
 /* eslint max-len: ["error", {"code": 120}] */
 
 // built-in webnn delegate
-importScripts('./tflite-support/tflite_model_runner_cc_simd.js');
+importScripts("./tflite-support/tflite_model_runner_cc_simd.js");
 
 let modelRunnerResult;
 let modelRunner;
@@ -12,7 +12,7 @@ onmessage = async (message) => {
 	if (message) {
 		// Load model or infer depends on the first data
 		switch (message.data.action) {
-		case 'load': {
+		case "load": {
 			if (modelRunner) {
 				modelRunner.delete();
 			}
@@ -58,7 +58,7 @@ onmessage = async (message) => {
 			postMessage(loadFinishedMs);
 			break;
 		}
-		case 'compute': {
+		case "compute": {
 			// Get input and output info.
 
 			const inputs = callAndDelete(
@@ -84,7 +84,7 @@ onmessage = async (message) => {
 
 			let outputBuffer = output.data();
 			outputBuffer = outputBuffer.slice(0);
-			postMessage({outputBuffer}, [outputBuffer.buffer]);
+			postMessage({ outputBuffer }, [outputBuffer.buffer]);
 			break;
 		}
 		default: {

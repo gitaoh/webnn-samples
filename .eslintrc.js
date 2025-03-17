@@ -1,21 +1,24 @@
 module.exports = {
 	root: true,
-	env: {es6: true, browser: true, jquery: true, node: true},
-	ignorePatterns: ['node_modules/'],
-	parserOptions: {ecmaVersion: 2017, sourceType: 'module'},
+	env: { es6: true, browser: true, jquery: true, node: true },
+	ignorePatterns: ["node_modules/"],
+	parserOptions: { ecmaVersion: 2017, sourceType: "module" },
 	rules: {
-		'semi': 0,
-		'indent': [2, 'tab'],
-		'no-tabs': ['error', {allowIndentationTabs: true}],
-		'max-len': [
-			'error',
+		quotes: [2, "double"],
+		semi: 0,
+		"object-curly-spacing": ["error", "always"],
+		"quote-props": ["error", "as-needed"],
+		indent: [2, "tab"],
+		"no-tabs": ["error", { allowIndentationTabs: true }],
+		"max-len": [
+			"error",
 			{
 				code: 80,
 				ignoreUrls: true,
-				ignorePattern: '^import\\s.+\\sfrom\\s.+;$',
+				ignorePattern: "^import\\s.+\\sfrom\\s.+;$",
 			},
 		],
-		'require-jsdoc': 'off',
+		"require-jsdoc": "off",
 	},
-	extends: ['eslint:recommended', 'google'],
+	extends: ["eslint:recommended", "google"],
 };

@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
+import { buildConstantByNpy, weightsOrigin } from "../common/utils.js";
 
 // SimpleCNN model with 'nhwc' layout.
 export class FaceLandmarkNhwc {
@@ -11,9 +11,9 @@ export class FaceLandmarkNhwc {
 		this.inputTensor_ = null;
 		this.outputTensor_ = null;
 		this.weightsUrl_ =
-			weightsOrigin() + '/test-data/models/face_landmark_nhwc/weights';
+			weightsOrigin() + "/test-data/models/face_landmark_nhwc/weights";
 		this.inputOptions = {
-			inputLayout: 'nhwc',
+			inputLayout: "nhwc",
 			inputShape: [1, 128, 128, 3],
 		};
 		this.outputShape_ = [1, 136];
@@ -25,8 +25,8 @@ export class FaceLandmarkNhwc {
 
 	async buildConv_(input, indice) {
 		const prefix = `${this.weightsUrl_}/conv2d`;
-		let weightSuffix = '_kernel.npy';
-		let biasSuffix = `_Conv2D_bias.npy`;
+		let weightSuffix = "_kernel.npy";
+		let biasSuffix = "_Conv2D_bias.npy";
 
 		if (indice > 0) {
 			weightSuffix = `_${indice}${weightSuffix}`;
@@ -38,8 +38,8 @@ export class FaceLandmarkNhwc {
 		const biasName = prefix + biasSuffix;
 		const bias = buildConstantByNpy(this.builder_, biasName);
 		const options = {
-			inputLayout: 'nhwc',
-			filterLayout: 'ohwi',
+			inputLayout: "nhwc",
+			filterLayout: "ohwi",
 			bias: await bias,
 		};
 		const conv2d = this.builder_.conv2d(
@@ -85,16 +85,16 @@ export class FaceLandmarkNhwc {
 		this.context_ = await navigator.ml.createContext(contextOptions);
 		this.builder_ = new MLGraphBuilder(this.context_);
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.inputOptions.inputShape,
 			shape: this.inputOptions.inputShape,
 		};
-		const input = this.builder_.input('input', inputDesc);
+		const input = this.builder_.input("input", inputDesc);
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
 		this.inputTensor_ = await this.context_.createTensor(inputDesc);
 		this.outputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.outputShape_,
 			shape: this.outputShape_,
 			usage: MLTensorUsage.READ,
@@ -104,7 +104,7 @@ export class FaceLandmarkNhwc {
 		const poolOptions = {
 			windowDimensions: [2, 2],
 			strides: [2, 2],
-			layout: 'nhwc',
+			layout: "nhwc",
 		};
 
 		const conv0 = this.buildConv_(input, 0);
@@ -122,24 +122,24 @@ export class FaceLandmarkNhwc {
 		const conv6 = this.buildConv_(conv5, 6);
 		const pool3 = this.buildMaxPool2d(conv6, {
 			windowDimensions: [2, 2],
-			layout: 'nhwc',
+			layout: "nhwc",
 		});
 
 		const conv7 = this.buildConv_(pool3, 7);
-		const fc0 = this.buildFullyConnected_(conv7, 'dense', true, 6400);
-		const fc1 = this.buildFullyConnected_(fc0, 'logits');
+		const fc0 = this.buildFullyConnected_(conv7, "dense", true, 6400);
+		const fc1 = this.buildFullyConnected_(fc0, "logits");
 
 		return await fc1;
 	}
 
 	async build(outputOperand) {
-		this.graph_ = await this.builder_.build({output: outputOperand});
+		this.graph_ = await this.builder_.build({ output: outputOperand });
 	}
 
 	async compute(inputBuffer) {
 		this.context_.writeTensor(this.inputTensor_, inputBuffer);
-		const inputs = {input: this.inputTensor_};
-		const outputs = {output: this.outputTensor_};
+		const inputs = { input: this.inputTensor_ };
+		const outputs = { output: this.outputTensor_ };
 		this.context_.dispatch(this.graph_, inputs, outputs);
 		const results = await this.context_.readTensor(this.outputTensor_);
 		return new Float32Array(results);

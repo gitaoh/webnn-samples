@@ -1,6 +1,6 @@
 /* global BigInt64Array, BigUint64Array, Float16Array */
 
-import {Util} from './util.js';
+import { Util } from "./util.js";
 
 // ============================================================
 // General Utilities
@@ -9,21 +9,21 @@ import {Util} from './util.js';
 export class ParseError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = 'ParseError';
+		this.name = "ParseError";
 	}
 }
 
 export class BuildError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = 'build()';
+		this.name = "build()";
 	}
 }
 
 export class DispatchError extends Error {
 	constructor(message) {
 		super(message);
-		this.name = 'dispatch()';
+		this.name = "dispatch()";
 	}
 }
 
@@ -37,7 +37,7 @@ const kArgTypeOperand = 3;
 
 class WebNNUtil {
 	static bufferForOperand(operand) {
-		const isShapeMethod = typeof operand.shape === 'function';
+		const isShapeMethod = typeof operand.shape === "function";
 		const operandShape = isShapeMethod ? operand.shape() : operand.shape;
 		const operandDataType = isShapeMethod ?
 			operand.dataType() :
@@ -48,13 +48,13 @@ class WebNNUtil {
 	}
 
 	static async tensorForOperand(operand, context) {
-		const isShapeMethod = typeof operand.shape === 'function';
+		const isShapeMethod = typeof operand.shape === "function";
 		const desc = {
 			dataType: isShapeMethod ? operand.dataType() : operand.dataType,
 			dimensions: isShapeMethod ? operand.shape() : operand.shape,
 			shape: isShapeMethod ? operand.shape() : operand.shape,
 			usage:
-				typeof MLTensorUsage == 'undefined' ?
+				typeof MLTensorUsage == "undefined" ?
 					undefined :
 					MLTensorUsage.READ,
 			readable: true,
@@ -65,21 +65,21 @@ class WebNNUtil {
 
 	static dataTypeToBufferType(type) {
 		switch (type) {
-		case 'int8':
+		case "int8":
 			return Int8Array;
-		case 'uint8':
+		case "uint8":
 			return Uint8Array;
-		case 'int32':
+		case "int32":
 			return Int32Array;
-		case 'uint32':
+		case "uint32":
 			return Uint32Array;
-		case 'int64':
+		case "int64":
 			return BigInt64Array;
-		case 'uint64':
+		case "uint64":
 			return BigUint64Array;
-		case 'float16':
+		case "float16":
 			return Float16Array;
-		case 'float32':
+		case "float32":
 			return Float32Array;
 		}
 		throw new Error(`Unsupported dataType ${type}`);
@@ -209,22 +209,22 @@ export class NNotepad {
 	static makeBuilderFunction(text) {
 		// Operators
 		const kAdditiveOperators = {
-			'+': 'add',
-			'-': 'sub',
+			"+": "add",
+			"-": "sub",
 		};
 		const kMultiplicativeOperators = {
-			'*': 'mul',
-			'/': 'div',
+			"*": "mul",
+			"/": "div",
 		};
 		const kPowerOperators = {
-			'^': 'pow',
+			"^": "pow",
 		};
 		const kRelationalOperators = {
-			'==': 'equal',
-			'>': 'greater',
-			'>=': 'greaterOrEqual',
-			'<': 'lesser',
-			'<=': 'lesserOrEqual',
+			"==": "equal",
+			">": "greater",
+			">=": "greaterOrEqual",
+			"<": "lesser",
+			"<=": "lesserOrEqual",
 		};
 		const kBinaryOperators = Object.assign(
 			{},
@@ -235,11 +235,11 @@ export class NNotepad {
 		);
 
 		const kUnaryOperators = {
-			'-': 'neg',
-			'!': 'logicalNot',
+			"-": "neg",
+			"!": "logicalNot",
 		};
 
-		const kDefaultDataType = 'float32';
+		const kDefaultDataType = "float32";
 
 		// ------------------------------------------------------------
 		// Tokenizer
@@ -257,15 +257,17 @@ export class NNotepad {
 		const kOperators = Object.assign({}, kBinaryOperators, kUnaryOperators);
 
 		// Tokens
-		const kCommentPattern = '(#|//).*';
+		const kCommentPattern = "(#|//).*";
 		const kNumberPattern =
-			'NaN\\b|Infinity\\b|-Infinity\\b|-?\\d+(\\.\\d+)?([eE]-?\\d+)?';
-		const kStringPattern = `"([^\\\\\\x0A\\x0D"]|\\\\.)*"|'([^\\\\\\x0A\\x0D']|\\\\.)*'`;
-		const kBooleanPattern = 'true\\b|false\\b';
-		const kSuffixPattern = `u8\\b|u32\\b|u64\\b|i8\\b|i32\\b|i64\\b|f16\\b|f32\\b`;
-		const kIdentifierPattern = '[A-Za-z]\\w*';
+			"NaN\\b|Infinity\\b|-Infinity\\b|-?\\d+(\\.\\d+)?([eE]-?\\d+)?";
+		const kStringPattern =
+			"\"([^\\\\\\x0A\\x0D\"]|\\\\.)*\"|'([^\\\\\\x0A\\x0D']|\\\\.)*'";
+		const kBooleanPattern = "true\\b|false\\b";
+		const kSuffixPattern =
+			"u8\\b|u32\\b|u64\\b|i8\\b|i32\\b|i64\\b|f16\\b|f32\\b";
+		const kIdentifierPattern = "[A-Za-z]\\w*";
 
-		const rescape = (s) => s.replace(/[\\^$*+?.()|[\]{}]/g, '\\$&');
+		const rescape = (s) => s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
 		const longestFirst = (a, b) => b.length - a.length;
 		const kTokenRegEx = new RegExp(
 			[
@@ -276,12 +278,12 @@ export class NNotepad {
 				kSuffixPattern,
 				kIdentifierPattern,
 				...Object.keys(kOperators).sort(longestFirst).map(rescape),
-				'.',
-			].join('|'),
-			'g',
+				".",
+			].join("|"),
+			"g",
 		);
 
-		const toRegEx = (p) => new RegExp('^(' + p + ')$');
+		const toRegEx = (p) => new RegExp("^(" + p + ")$");
 		const kCommentRegEx = toRegEx(kCommentPattern);
 		const kNumberRegEx = toRegEx(kNumberPattern);
 		const kStringRegEx = toRegEx(kStringPattern);
@@ -326,13 +328,13 @@ export class NNotepad {
 			}
 		}
 		function parseLine() {
-			if (isIdentifier(peek()) && peek(1) === '=') {
+			if (isIdentifier(peek()) && peek(1) === "=") {
 				const identifier = take();
 				take();
-				return {type: 'assignment', identifier, expr: parseExpr()};
+				return { type: "assignment", identifier, expr: parseExpr() };
 			}
 
-			return {type: 'expression', expr: parseExpr()};
+			return { type: "expression", expr: parseExpr() };
 		}
 		function parseExpr() {
 			return parseRelExpr();
@@ -342,7 +344,7 @@ export class NNotepad {
 			while (Object.keys(kRelationalOperators).includes(peek())) {
 				const op = take();
 				const rhs = parseAddExpr();
-				lhs = {lhs, op, rhs};
+				lhs = { lhs, op, rhs };
 			}
 			return lhs;
 		}
@@ -351,7 +353,7 @@ export class NNotepad {
 			while (Object.keys(kAdditiveOperators).includes(peek())) {
 				const op = take();
 				const rhs = parseMulExpr();
-				lhs = {lhs, op, rhs};
+				lhs = { lhs, op, rhs };
 			}
 			return lhs;
 		}
@@ -360,7 +362,7 @@ export class NNotepad {
 			while (Object.keys(kMultiplicativeOperators).includes(peek())) {
 				const op = take();
 				const rhs = parsePowExpr();
-				lhs = {lhs, op, rhs};
+				lhs = { lhs, op, rhs };
 			}
 			return lhs;
 		}
@@ -369,7 +371,7 @@ export class NNotepad {
 			while (Object.keys(kPowerOperators).includes(peek())) {
 				const op = take();
 				const rhs = parseUnaryExpr();
-				lhs = {lhs, op, rhs};
+				lhs = { lhs, op, rhs };
 			}
 			return lhs;
 		}
@@ -377,7 +379,7 @@ export class NNotepad {
 			if (Object.keys(kUnaryOperators).includes(peek())) {
 				const op = take();
 				const rhs = parseUnaryExpr();
-				return {op, rhs};
+				return { op, rhs };
 			}
 			return parseFinalExpr();
 		}
@@ -388,61 +390,61 @@ export class NNotepad {
 				if (isSuffix(peek())) {
 					dataType = suffixToDataType(take());
 				}
-				return {type: 'number', value: Number(token), dataType};
+				return { type: "number", value: Number(token), dataType };
 			}
 			if (isString(token)) {
-				return {type: 'string', value: eval(token)};
+				return { type: "string", value: eval(token) };
 			}
 			if (isBoolean(token)) {
-				return {type: 'boolean', value: token === 'true'};
+				return { type: "boolean", value: token === "true" };
 			}
-			if (token === '[') {
+			if (token === "[") {
 				const value = parseArray();
 				let dataType = kDefaultDataType;
 				if (isSuffix(peek())) {
 					dataType = suffixToDataType(take());
 				}
-				return {type: 'array', value, dataType};
+				return { type: "array", value, dataType };
 			}
-			if (token === '{') {
+			if (token === "{") {
 				const dict = parseDict();
-				return {type: 'dict', dict};
+				return { type: "dict", dict };
 			}
 			if (isIdentifier(token)) {
-				if (peek() !== '(') {
-					return {type: 'identifier', value: token};
+				if (peek() !== "(") {
+					return { type: "identifier", value: token };
 				}
 				take();
 				const args = [];
-				if (peek() !== ')') {
+				if (peek() !== ")") {
 					args.push(parseExpr());
-					while (peek() === ',') {
+					while (peek() === ",") {
 						take();
 						args.push(parseExpr());
 					}
 				}
-				expect(')');
-				return {type: 'call', identifier: token, args};
+				expect(")");
+				return { type: "call", identifier: token, args };
 			}
-			if (token === '(') {
+			if (token === "(") {
 				const expr = parseExpr();
-				expect(')');
+				expect(")");
 				return expr;
 			}
 			throw new ParseError(`Expected expression, saw '${token}'`);
 		}
 		function parseArray() {
 			const array = [];
-			if (peek() !== ']') {
+			if (peek() !== "]") {
 				const expr = parseExpr();
 				array.push(expr);
-				while (peek() === ',') {
+				while (peek() === ",") {
 					take();
 					const expr = parseExpr();
 					array.push(expr);
 				}
 			}
-			expect(']');
+			expect("]");
 			return array;
 		}
 		function parseDict() {
@@ -450,9 +452,9 @@ export class NNotepad {
 			if (isIdentifier(peek()) || isString(peek())) {
 				const [key, value] = parsePropDef();
 				dict[key] = value;
-				while (peek() === ',') {
+				while (peek() === ",") {
 					take();
-					if (peek() === '}') {
+					if (peek() === "}") {
 						break;
 					}
 					if (!(isIdentifier(peek()) || isString(peek()))) {
@@ -464,7 +466,7 @@ export class NNotepad {
 					dict[key] = value;
 				}
 			}
-			expect('}');
+			expect("}");
 			return dict;
 
 			function parsePropDef() {
@@ -472,7 +474,7 @@ export class NNotepad {
 				if (isString(key)) {
 					key = eval(key);
 				}
-				expect(':');
+				expect(":");
 				const expr = parseExpr();
 				return [key, expr];
 			}
@@ -488,19 +490,19 @@ export class NNotepad {
 			.map((line, index) =>
 				serializeLine(line, index === lines.length - 1),
 			)
-			.map((line) => line + ';\n')
-			.join('');
+			.map((line) => line + ";\n")
+			.join("");
 		const AsyncFunction = async function() {}.constructor;
-		return [new AsyncFunction(['_', 'Util'], src), src];
+		return [new AsyncFunction(["_", "Util"], src), src];
 
 		function serializeLine(line, last) {
 			const expr = serializeExpr(line.expr);
 			switch (line.type) {
-			case 'assignment':
+			case "assignment":
 				return last ?
 					`return ${expr}` :
 					`const ${line.identifier} = ${expr}`;
-			case 'expression':
+			case "expression":
 				return last ? `return ${expr}` : expr;
 			}
 			throw new Error(`unexpected line type: ${line.type}`);
@@ -514,36 +516,38 @@ export class NNotepad {
 		// contextually.
 		function serializeExpr(expr, callContext) {
 			const argumentType =
-				typeof callContext === 'object' ?
+				typeof callContext === "object" ?
 					WebNNUtil.argumentType(
 						callContext.name,
 						callContext.index,
 					) :
-					typeof callContext === 'number' ?
+					typeof callContext === "number" ?
 						callContext :
 						kArgTypeOperand;
 			if (expr.op) {
 				if (expr.lhs) {
-					return `_.${kBinaryOperators[expr.op]}(${serializeExpr(expr.lhs)}, ${serializeExpr(
+					return `_.${kBinaryOperators[expr.op]}(${serializeExpr(
+						expr.lhs,
+					)}, ${serializeExpr(expr.rhs)})`;
+				} else {
+					return `_.${kUnaryOperators[expr.op]}(${serializeExpr(
 						expr.rhs,
 					)})`;
-				} else {
-					return `_.${kUnaryOperators[expr.op]}(${serializeExpr(expr.rhs)})`;
 				}
 			}
 			switch (expr.type) {
-			case 'string':
+			case "string":
 				return Util.stringify(expr.value);
-			case 'boolean':
+			case "boolean":
 				return String(expr.value);
-			case 'number':
+			case "number":
 				switch (argumentType) {
 				case kArgTypeNonOperand:
 					return Util.stringify(expr.value);
 				default:
 					return serializeScalar(expr.value, expr.dataType);
 				}
-			case 'array':
+			case "array":
 				switch (argumentType) {
 				case kArgTypeNonOperand:
 					return serializeArray(
@@ -555,23 +559,23 @@ export class NNotepad {
 				default:
 					return serializeTensor(expr.value, expr.dataType);
 				}
-			case 'dict':
+			case "dict":
 				return serializeDict(expr.dict, callContext);
-			case 'identifier':
+			case "identifier":
 				return expr.value;
-			case 'call':
+			case "call":
 				return serializeCall(expr.identifier, expr.args);
 			}
 			throw new Error(`unexpected expr type: ${expr.type}`);
 		}
 		function serializeDict(dict, callContext) {
 			return (
-				'{' +
+				"{" +
 				Object.keys(dict)
 					.map((k) => {
 						const v = dict[k];
 						const argumentType =
-							typeof callContext === 'object' ?
+							typeof callContext === "object" ?
 								WebNNUtil.argumentType(
 									callContext.name,
 									callContext.index,
@@ -583,27 +587,30 @@ export class NNotepad {
 							argumentType,
 						)}`;
 					})
-					.join(', ') +
-				'}'
+					.join(", ") +
+				"}"
 			);
 		}
 
 		function serializeScalar(number, dataType) {
 			const ctor = WebNNUtil.dataTypeToBufferType(dataType);
 			// building a 0-D scalar input with empty shape
-			return `_.constant({dataType:"${dataType}", dimensions: [], shape: []},
-      new ${ctor.name}([${Util.stringifyNumber(number, dataType)}]).buffer)`;
+			return (
+				`_.constant({dataType:"${dataType}",` +
+				` dimensions: [], shape: []},
+      new ${ctor.name}([${Util.stringifyNumber(number, dataType)}]).buffer)`
+			);
 		}
 		function suffixToDataType(suffix) {
 			return {
-				i8: 'int8',
-				u8: 'uint8',
-				i32: 'int32',
-				u32: 'uint32',
-				i64: 'int64',
-				u64: 'uint64',
-				f16: 'float16',
-				f32: 'float32',
+				i8: "int8",
+				u8: "uint8",
+				i32: "int32",
+				u32: "uint32",
+				i64: "int64",
+				u64: "uint64",
+				f16: "float16",
+				f32: "float32",
 			}[suffix];
 		}
 
@@ -614,15 +621,15 @@ export class NNotepad {
 				if (d >= shape.length) {
 					shape[d] = t.length;
 				} else if (shape[d] !== t.length) {
-					throw new Error('Invalid tensor: inconsistent shape');
+					throw new Error("Invalid tensor: inconsistent shape");
 				}
 				t.forEach((e) => {
-					if (e.type === 'array') {
+					if (e.type === "array") {
 						measure(e.value, d + 1);
-					} else if (e.type !== 'number') {
+					} else if (e.type !== "number") {
 						throw new Error(`Invalid tensor: saw ${e.type}`);
 					} else if (d + 1 !== shape.length) {
-						throw new Error('Invalid tensor: saw scalar');
+						throw new Error("Invalid tensor: saw scalar");
 					} else {
 						elements.push(e.value);
 					}
@@ -633,61 +640,66 @@ export class NNotepad {
 				shape,
 			)}, shape: ${Util.stringify(shape)}}, new ${ctor.name}([${elements
 				.map((n) => Util.stringifyNumber(n, dataType))
-				.join(',')}]).buffer)`;
+				.join(",")}]).buffer)`;
 		}
 
 		function serializeArray(array, argumentType) {
 			return (
-				'[' +
+				"[" +
 				array
 					.map((expr) => serializeExpr(expr, argumentType))
-					.join(', ') +
-				']'
+					.join(", ") +
+				"]"
 			);
 		}
 
 		function serializeCall(name, args) {
-			if (name === 'load') {
+			if (name === "load") {
 				const [url, shape, dataType] = args;
-				if (url.type !== 'string') {
-					throw new TypeError('load(): expected string');
+				if (url.type !== "string") {
+					throw new TypeError("load(): expected string");
 				}
-				if (shape.type !== 'array') {
-					throw new TypeError('load(): expected array');
+				if (shape.type !== "array") {
+					throw new TypeError("load(): expected array");
 				}
-				if (dataType.type !== 'string') {
-					throw new TypeError('load(): expected string');
+				if (dataType.type !== "string") {
+					throw new TypeError("load(): expected string");
 				}
 				const dims = shape.value.map((expr) => expr.value);
 				const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
-				return `_.constant({dataType: "${dataType.value}", dimensions: ${Util.stringify(
+				return `_.constant({dataType: "${
+					dataType.value
+				}", dimensions: ${Util.stringify(
 					dims,
 				)}, shape: ${Util.stringify(dims)}}, new ${
 					ctor.name
 				}(await Util.loadBuffer(${Util.stringify(url.value)})).buffer)`;
 			}
 
-			if (name === 'zeros') {
+			if (name === "zeros") {
 				const [shape, dataType] = args;
-				if (shape.type !== 'array') {
-					throw new TypeError('zeros(): expected array');
+				if (shape.type !== "array") {
+					throw new TypeError("zeros(): expected array");
 				}
-				if (dataType.type !== 'string') {
-					throw new TypeError('zeros(): expected string');
+				if (dataType.type !== "string") {
+					throw new TypeError("zeros(): expected string");
 				}
 				const dims = shape.value.map((expr) => expr.value);
 				const ctor = WebNNUtil.dataTypeToBufferType(dataType.value);
 				const len = dims.reduce((a, b) => a * b, 1);
-				return `_.constant({dataType: "${dataType.value}", dimensions: ${Util.stringify(
-					dims,
-				)}, shape: ${Util.stringify(dims)}}, new ${
-					ctor.name
-				}(${len}).buffer)`;
+				return (
+					`_.constant({dataType: "${dataType.value}",` +
+					` dimensions: ${Util.stringify(
+						dims,
+					)}, shape: ${Util.stringify(dims)}}, new ${
+						ctor.name
+					}(${len}).buffer)`
+				);
 			}
 
 			return `_.${name}(${args
-				.map((arg, index) => serializeExpr(arg, {name, index}))
-				.join(', ')})`;
+				.map((arg, index) => serializeExpr(arg, { name, index }))
+				.join(", ")})`;
 		}
 	}
 
@@ -700,7 +712,7 @@ export class NNotepad {
 	// dispatch() on it. The output is mapped.
 
 	static async execBuilderFunction(deviceType, builderFunc) {
-		const context = await navigator.ml.createContext({deviceType});
+		const context = await navigator.ml.createContext({ deviceType });
 		const builder = new self.MLGraphBuilder(context);
 
 		const outputOperands = [];
@@ -753,16 +765,16 @@ export class NNotepad {
 		}
 
 		function maybeProxyForFloat16Array(array) {
-			return 'proxyForFloat16Array' in self ?
+			return "proxyForFloat16Array" in self ?
 				self.proxyForFloat16Array(array) :
 				array;
 		}
 
 		return outputOperands.map((op, index) => ({
 			dataType:
-				typeof op.shape === 'function' ? op.dataType() : op.dataType,
-			dimensions: typeof op.shape === 'function' ? op.shape() : op.shape,
-			shape: typeof op.shape === 'function' ? op.shape() : op.shape,
+				typeof op.shape === "function" ? op.dataType() : op.dataType,
+			dimensions: typeof op.shape === "function" ? op.shape() : op.shape,
+			shape: typeof op.shape === "function" ? op.shape() : op.shape,
 			buffer: maybeProxyForFloat16Array(outputBuffers[`output-${index}`]),
 		}));
 	}
@@ -774,13 +786,13 @@ export class NNotepad {
 	// The language ID configured when calling `addMonacoLanguage()`, which
 	// should be passed to `monaco.editor.create()`.
 	static get monacoLanguageId() {
-		return 'nnotepad';
+		return "nnotepad";
 	}
 
 	// Register and configure the NNotepad language with Monaco.
 
 	static addMonacoLanguage(monaco) {
-		monaco.languages.register({id: NNotepad.monacoLanguageId});
+		monaco.languages.register({ id: NNotepad.monacoLanguageId });
 
 		monaco.languages.setLanguageConfiguration(
 			NNotepad.monacoLanguageId,
@@ -792,14 +804,14 @@ export class NNotepad {
 			NNotepad.monarchTokensProvider,
 		);
 
-		if ('MLGraphBuilder' in self) {
+		if ("MLGraphBuilder" in self) {
 			// Introspect MLGraphBuilder methods to populate autocompletion.
 			const proto = self.MLGraphBuilder.prototype;
 			const methods = Object.getOwnPropertyNames(proto)
 				.map((name) => Object.getOwnPropertyDescriptor(proto, name))
 				.filter(
 					(desc) =>
-						desc.enumerable && typeof desc.value === 'function',
+						desc.enumerable && typeof desc.value === "function",
 				)
 				.map((desc) => desc.value.name);
 
@@ -812,7 +824,7 @@ export class NNotepad {
 							kind: monaco.languages.CompletionItemKind.Keyword,
 							insertText: name,
 						}));
-						return {suggestions};
+						return { suggestions };
 					},
 				},
 			);
@@ -826,23 +838,23 @@ export class NNotepad {
 		return {
 			// For comment toggling.
 			comments: {
-				lineComment: '#',
+				lineComment: "#",
 			},
 
 			// For matching/highlighting.
 			brackets: [
-				['{', '}'],
-				['[', ']'],
-				['(', ')'],
+				["{", "}"],
+				["[", "]"],
+				["(", ")"],
 			],
 
 			// To auto-close as you type the open character.
 			autoClosingPairs: [
-				{open: '{', close: '}'},
-				{open: '[', close: ']'},
-				{open: '(', close: ')'},
-				{open: '\'', close: '\'', notIn: ['string', 'comment']},
-				{open: '"', close: '"', notIn: ['string']},
+				{ open: "{", close: "}" },
+				{ open: "[", close: "]" },
+				{ open: "(", close: ")" },
+				{ open: "'", close: "'", notIn: ["string", "comment"] },
+				{ open: "\"", close: "\"", notIn: ["string"] },
 			],
 		};
 	}
@@ -852,12 +864,12 @@ export class NNotepad {
 
 	static get monarchTokensProvider() {
 		return {
-			defaultToken: 'invalid',
+			defaultToken: "invalid",
 
 			brackets: [
-				['{', '}', 'delimiter.curly'],
-				['[', ']', 'delimiter.square'],
-				['(', ')', 'delimiter.parenthesis'],
+				["{", "}", "delimiter.curly"],
+				["[", "]", "delimiter.square"],
+				["(", ")", "delimiter.parenthesis"],
 			],
 
 			// Common token patterns
@@ -870,105 +882,105 @@ export class NNotepad {
 
 			tokenizer: {
 				root: [
-					{include: '@whitespace'},
-					{include: '@comment'},
+					{ include: "@whitespace" },
+					{ include: "@comment" },
 
 					// Assignment
 					[
-						'(@identifier)(@ws)(=)',
-						['variable.name', 'white', 'operator'],
+						"(@identifier)(@ws)(=)",
+						["variable.name", "white", "operator"],
 					],
 
-					{include: '@expr'},
+					{ include: "@expr" },
 				],
 
 				// Expression
 				expr: [
-					{include: '@whitespace'},
-					{include: '@comment'},
+					{ include: "@whitespace" },
+					{ include: "@comment" },
 
 					// Number
-					['@number', 'number.float', '@suffix'],
+					["@number", "number.float", "@suffix"],
 
 					// Array
-					[/\[/, '@brackets', '@array'],
+					[/\[/, "@brackets", "@array"],
 
 					// String
-					['@string', 'string'],
+					["@string", "string"],
 
 					// Boolean
-					['@boolean', 'keyword'],
+					["@boolean", "keyword"],
 
 					// Dictionary
-					[/{/, '@brackets', '@dict'],
+					[/{/, "@brackets", "@dict"],
 
 					// Function invocation
 					[
-						'(@identifier)(@ws)(\\()',
+						"(@identifier)(@ws)(\\()",
 						[
-							'identifier',
-							'white',
-							{token: '@brackets', next: '@func'},
+							"identifier",
+							"white",
+							{ token: "@brackets", next: "@func" },
 						],
 					],
 
 					// Identifier
-					['@identifier', 'identifier'],
+					["@identifier", "identifier"],
 
 					// Delimited subexpression
-					[/\(/, '@brackets', '@subexpr'],
+					[/\(/, "@brackets", "@subexpr"],
 
 					// operators
-					[/==|<=|<|>=|>|\+|-|\*|\/|\^|!/, 'operator'],
+					[/==|<=|<|>=|>|\+|-|\*|\/|\^|!/, "operator"],
 				],
 
 				// Function call
 				func: [
-					{include: '@expr'},
-					[/,/, 'delimiter'],
-					[/\)/, '@brackets', '@pop'],
+					{ include: "@expr" },
+					[/,/, "delimiter"],
+					[/\)/, "@brackets", "@pop"],
 				],
 
 				// Dictionary
 				dict: [
-					{include: '@whitespace'},
-					{include: '@comment'},
-					['@string', 'string', '@propdef'],
-					['@identifier', 'identifier', '@propdef'],
-					[/,/, 'delimiter'],
-					[/}/, '@brackets', '@pop'],
+					{ include: "@whitespace" },
+					{ include: "@comment" },
+					["@string", "string", "@propdef"],
+					["@identifier", "identifier", "@propdef"],
+					[/,/, "delimiter"],
+					[/}/, "@brackets", "@pop"],
 				],
 
 				propdef: [
-					{include: '@whitespace'},
-					{include: '@comment'},
-					[':', {token: 'delimiter', switchTo: '@propvalue'}],
+					{ include: "@whitespace" },
+					{ include: "@comment" },
+					[":", { token: "delimiter", switchTo: "@propvalue" }],
 				],
 
 				propvalue: [
-					{include: '@expr'},
-					[/,/, 'delimiter', '@pop'],
-					[/(?=})/, '', '@pop'],
+					{ include: "@expr" },
+					[/,/, "delimiter", "@pop"],
+					[/(?=})/, "", "@pop"],
 				],
 
 				// Array
 				array: [
-					{include: '@expr'},
-					[/,/, 'delimiter'],
-					[']', {token: '@brackets', switchTo: '@suffix'}],
+					{ include: "@expr" },
+					[/,/, "delimiter"],
+					["]", { token: "@brackets", switchTo: "@suffix" }],
 				],
 
 				// Delimited subexpression
-				subexpr: [{include: '@expr'}, [/\)/, '@brackets', '@pop']],
+				subexpr: [{ include: "@expr" }, [/\)/, "@brackets", "@pop"]],
 
-				whitespace: [[/[ \t\r\n]+/, 'white']],
+				whitespace: [[/[ \t\r\n]+/, "white"]],
 
-				comment: [[/(#|\/\/).*$/, 'comment']],
+				comment: [[/(#|\/\/).*$/, "comment"]],
 
 				suffix: [
 					[
-						'(@ws)((?:@suffix)?)',
-						['white', {token: 'annotation', next: '@pop'}],
+						"(@ws)((?:@suffix)?)",
+						["white", { token: "annotation", next: "@pop" }],
 					],
 				],
 			},

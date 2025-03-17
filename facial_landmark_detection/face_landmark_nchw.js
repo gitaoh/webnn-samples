@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import {buildConstantByNpy, weightsOrigin} from '../common/utils.js';
+import { buildConstantByNpy, weightsOrigin } from "../common/utils.js";
 
 // SimpleCNN model with 'nchw' layout.
 export class FaceLandmarkNchw {
@@ -11,9 +11,9 @@ export class FaceLandmarkNchw {
 		this.inputTensor_ = null;
 		this.outputTensor_ = null;
 		this.weightsUrl_ =
-			weightsOrigin() + '/test-data/models/face_landmark_nchw/weights';
+			weightsOrigin() + "/test-data/models/face_landmark_nchw/weights";
 		this.inputOptions = {
-			inputLayout: 'nchw',
+			inputLayout: "nchw",
 			inputShape: [1, 3, 128, 128],
 		};
 		this.outputShape_ = [1, 136];
@@ -25,8 +25,8 @@ export class FaceLandmarkNchw {
 
 	async buildConv_(input, indice) {
 		const prefix = `${this.weightsUrl_}/conv2d`;
-		let weightSuffix = '_kernel.npy';
-		let biasSuffix = `_Conv2D_bias.npy`;
+		let weightSuffix = "_kernel.npy";
+		let biasSuffix = "_Conv2D_bias.npy";
 
 		if (indice > 0) {
 			weightSuffix = `_${indice}${weightSuffix}`;
@@ -88,23 +88,23 @@ export class FaceLandmarkNchw {
 		this.context_ = await navigator.ml.createContext(contextOptions);
 		this.builder_ = new MLGraphBuilder(this.context_);
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.inputOptions.inputShape,
 			shape: this.inputOptions.inputShape,
 		};
-		const input = this.builder_.input('input', inputDesc);
+		const input = this.builder_.input("input", inputDesc);
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
 		this.inputTensor_ = await this.context_.createTensor(inputDesc);
 		this.outputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.outputShape_,
 			shape: this.outputShape_,
 			usage: MLTensorUsage.READ,
 			readable: true,
 		});
 
-		const poolOptions = {windowDimensions: [2, 2], strides: [2, 2]};
+		const poolOptions = { windowDimensions: [2, 2], strides: [2, 2] };
 
 		const conv0 = this.buildConv_(input, 0);
 		const pool0 = this.buildMaxPool2d(conv0, poolOptions);
@@ -119,23 +119,23 @@ export class FaceLandmarkNchw {
 
 		const conv5 = this.buildConv_(pool2, 5);
 		const conv6 = this.buildConv_(conv5, 6);
-		const pool3 = this.buildMaxPool2d(conv6, {windowDimensions: [2, 2]});
+		const pool3 = this.buildMaxPool2d(conv6, { windowDimensions: [2, 2] });
 
 		const conv7 = this.buildConv_(pool3, 7);
-		const gemm0 = this.buildGemm_(conv7, 'dense', true, 6400);
-		const gemm1 = this.buildGemm_(gemm0, 'logits');
+		const gemm0 = this.buildGemm_(conv7, "dense", true, 6400);
+		const gemm1 = this.buildGemm_(gemm0, "logits");
 
 		return await gemm1;
 	}
 
 	async build(outputOperand) {
-		this.graph_ = await this.builder_.build({output: outputOperand});
+		this.graph_ = await this.builder_.build({ output: outputOperand });
 	}
 
 	async compute(inputBuffer) {
 		this.context_.writeTensor(this.inputTensor_, inputBuffer);
-		const inputs = {input: this.inputTensor_};
-		const outputs = {output: this.outputTensor_};
+		const inputs = { input: this.inputTensor_ };
+		const outputs = { output: this.outputTensor_ };
 		this.context_.dispatch(this.graph_, inputs, outputs);
 		const results = await this.context_.readTensor(this.outputTensor_);
 		return new Float32Array(results);

@@ -1,25 +1,25 @@
-'use strict';
+"use strict";
 
-import {FaceLandmarkNhwc} from './face_landmark_nhwc.js';
-import {FaceLandmarkNchw} from './face_landmark_nchw.js';
-import {SsdMobilenetV2FaceNhwc} from './ssd_mobilenetv2_face_nhwc.js';
-import {SsdMobilenetV2FaceNchw} from './ssd_mobilenetv2_face_nchw.js';
-import * as ui from '../common/ui.js';
-import * as utils from '../common/utils.js';
-import * as SsdDecoder from '../common/libs/ssdDecoder.js';
-import * as FaceLandmark from './libs/face_landmark_utils.js';
+import { FaceLandmarkNhwc } from "./face_landmark_nhwc.js";
+import { FaceLandmarkNchw } from "./face_landmark_nchw.js";
+import { SsdMobilenetV2FaceNhwc } from "./ssd_mobilenetv2_face_nhwc.js";
+import { SsdMobilenetV2FaceNchw } from "./ssd_mobilenetv2_face_nchw.js";
+import * as ui from "../common/ui.js";
+import * as utils from "../common/utils.js";
+import * as SsdDecoder from "../common/libs/ssdDecoder.js";
+import * as FaceLandmark from "./libs/face_landmark_utils.js";
 
-const imgElement = document.getElementById('feedElement');
-imgElement.src = './images/test.jpg';
-const camElement = document.getElementById('feedMediaElement');
-let fdModelName = '';
-const fldModelName = 'facelandmark';
-let layout = 'nhwc';
+const imgElement = document.getElementById("feedElement");
+imgElement.src = "./images/test.jpg";
+const camElement = document.getElementById("feedMediaElement");
+let fdModelName = "";
+const fldModelName = "facelandmark";
+let layout = "nhwc";
 let fdInstanceType = fdModelName + layout;
 let fldInstanceType = fldModelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
-let inputType = 'image';
+let inputType = "image";
 let fdInstance = null;
 let fdInputOptions;
 let fldInstance = null;
@@ -28,37 +28,37 @@ let stream = null;
 let loadTime = 0;
 let buildTime = 0;
 let computeTime = 0;
-let deviceType = '';
-let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let deviceType = "";
+let lastdeviceType = "";
+let backend = "";
+let lastBackend = "";
 let stopRender = true;
 let isRendering = false;
-const disabledSelectors = ['#tabs > li', '.btn'];
+const disabledSelectors = ["#tabs > li", ".btn"];
 
 $(document).ready(async () => {
-	$('.icdisplay').hide();
+	$(".icdisplay").hide();
 	if (await utils.isWebNN()) {
-		$('#webnn_cpu').click();
+		$("#webnn_cpu").click();
 	} else {
 		console.log(utils.webNNNotSupportMessage());
 		ui.addAlert(utils.webNNNotSupportMessageHTML());
 	}
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#backendBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	layout = utils.getDefaultLayout($(e.target).attr('id'));
+	layout = utils.getDefaultLayout($(e.target).attr("id"));
 	await main();
 });
 
-$('#fdModelBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#fdModelBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	fdModelName = $(e.target).attr('id');
+	fdModelName = $(e.target).attr("id");
 	await main();
 });
 
@@ -71,35 +71,35 @@ $('#fdModelBtns .btn').on('change', async (e) => {
 // });
 
 // Click trigger to do inference with <img> element
-$('#img').click(async () => {
-	if (inputType === 'camera') {
+$("#img").click(async () => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	} else {
 		return;
 	}
-	inputType = 'image';
-	$('.shoulddisplay').hide();
+	inputType = "image";
+	$(".shoulddisplay").hide();
 	await main();
 });
 
-$('#imageFile').change((e) => {
+$("#imageFile").change((e) => {
 	const files = e.target.files;
 	if (files.length > 0) {
-		$('#feedElement').removeAttr('height');
-		$('#feedElement').removeAttr('width');
+		$("#feedElement").removeAttr("height");
+		$("#feedElement").removeAttr("width");
 		imgElement.src = URL.createObjectURL(files[0]);
 	}
 });
 
-$('#feedElement').on('load', async () => {
+$("#feedElement").on("load", async () => {
 	await main();
 });
 
 // Click trigger to do inference with <video> media element
-$('#cam').click(async () => {
-	if (inputType == 'camera') return;
-	inputType = 'camera';
-	$('.shoulddisplay').hide();
+$("#cam").click(async () => {
+	if (inputType == "camera") return;
+	inputType = "camera";
+	$(".shoulddisplay").hide();
 	await main();
 });
 
@@ -130,14 +130,14 @@ async function renderCamStream() {
 	}
 	isRendering = true;
 	const inputCanvas = utils.getVideoFrame(camElement);
-	console.log('- Computing... ');
+	console.log("- Computing... ");
 	const [totalComputeTime, strokedRects, keyPoints] =
 		await predict(camElement);
 	console.log(`  done in ${totalComputeTime} ms.`);
 	computeTime = totalComputeTime;
 	showPerfResult();
 	await drawOutput(inputCanvas, strokedRects, keyPoints);
-	$('#fps').text(`${(1000 / totalComputeTime).toFixed(0)} FPS`);
+	$("#fps").text(`${(1000 / totalComputeTime).toFixed(0)} FPS`);
 	isRendering = false;
 	if (!stopRender) {
 		rafReq = requestAnimationFrame(renderCamStream);
@@ -167,7 +167,7 @@ async function predict(inputElement) {
 	const anchors = SsdDecoder.generateAnchors({});
 	SsdDecoder.decodeOutputBoxTensor({}, fdSsdOutputs.outputBoxTensor, anchors);
 	let [totalDetections, boxesList, scoresList] = SsdDecoder.nonMaxSuppression(
-		{numClasses: 2},
+		{ numClasses: 2 },
 		fdSsdOutputs.outputBoxTensor,
 		fdSsdOutputs.outputClassScoresTensor,
 	);
@@ -207,8 +207,8 @@ async function predict(inputElement) {
 	return [totalComputeTime.toFixed(2), strokedRects, keyPoints];
 }
 async function drawOutput(inputElement, strokedRects, keyPoints) {
-	const outputElement = document.getElementById('outputCanvas');
-	$('#inferenceresult').show();
+	const outputElement = document.getElementById("outputCanvas");
+	$("#inferenceresult").show();
 
 	const texts = strokedRects.map((r) => r[4].toFixed(2));
 	SsdDecoder.drawFaceRectangles(
@@ -226,14 +226,14 @@ async function drawOutput(inputElement, strokedRects, keyPoints) {
 }
 
 function showPerfResult(medianComputeTime = undefined) {
-	$('#loadTime').html(`${loadTime} ms`);
-	$('#buildTime').html(`${buildTime} ms`);
+	$("#loadTime").html(`${loadTime} ms`);
+	$("#buildTime").html(`${buildTime} ms`);
 	if (medianComputeTime !== undefined) {
-		$('#computeLabel').html('Median inference time:');
-		$('#computeTime').html(`${medianComputeTime} ms`);
+		$("#computeLabel").html("Median inference time:");
+		$("#computeTime").html(`${medianComputeTime} ms`);
 	} else {
-		$('#computeLabel').html('Inference time:');
-		$('#computeTime').html(`${computeTime} ms`);
+		$("#computeLabel").html("Inference time:");
+		$("#computeTime").html(`${computeTime} ms`);
 	}
 }
 
@@ -250,12 +250,12 @@ function constructNetObject(type) {
 
 async function main() {
 	try {
-		if (fdModelName === '') return;
-		[backend, deviceType] = $('input[name="backend"]:checked')
-			.attr('id')
-			.split('_');
+		if (fdModelName === "") return;
+		[backend, deviceType] = $("input[name=\"backend\"]:checked")
+			.attr("id")
+			.split("_");
 		ui.handleClick(disabledSelectors, true);
-		if (isFirstTimeLoad) $('#hint').hide();
+		if (isFirstTimeLoad) $("#hint").hide();
 		const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
 		let start;
 		// Only do load() and build() when model first time loads,
@@ -283,14 +283,14 @@ async function main() {
 				`- Model name: ${fdModelName}, Model layout: ${layout} -`,
 			);
 			// UI shows model loading progress
-			await ui.showProgressComponent('current', 'pending', 'pending');
-			console.log('- Loading weights... ');
-			const contextOptions = {deviceType};
+			await ui.showProgressComponent("current", "pending", "pending");
+			console.log("- Loading weights... ");
+			const contextOptions = { deviceType };
 			if (powerPreference) {
-				contextOptions['powerPreference'] = powerPreference;
+				contextOptions["powerPreference"] = powerPreference;
 			}
 			if (numThreads) {
-				contextOptions['numThreads'] = numThreads;
+				contextOptions["numThreads"] = numThreads;
 			}
 			start = performance.now();
 			const [fdOutputOperand, fldOutputOperand] = await Promise.all([
@@ -300,8 +300,8 @@ async function main() {
 			loadTime = (performance.now() - start).toFixed(2);
 			console.log(`  done in ${loadTime} ms.`);
 			// UI shows model building progress
-			await ui.showProgressComponent('done', 'current', 'pending');
-			console.log('- Building... ');
+			await ui.showProgressComponent("done", "current", "pending");
+			console.log("- Building... ");
 			start = performance.now();
 			await Promise.all([
 				fdInstance.build(fdOutputOperand),
@@ -311,13 +311,13 @@ async function main() {
 			console.log(`  done in ${buildTime} ms.`);
 		}
 		// UI shows inferencing progress
-		await ui.showProgressComponent('done', 'done', 'current');
-		if (inputType === 'image') {
+		await ui.showProgressComponent("done", "done", "current");
+		if (inputType === "image") {
 			const computeTimeArray = [];
 			let strokedRects;
 			let keyPoints;
 			let medianComputeTime;
-			console.log('- Computing... ');
+			console.log("- Computing... ");
 			// Do warm up
 			const fdResults = await fdInstance.compute(
 				new Float32Array(utils.sizeOfShape(fdInputOptions.inputShape)),
@@ -336,20 +336,20 @@ async function main() {
 				medianComputeTime = medianComputeTime.toFixed(2);
 				console.log(`  median compute time: ${medianComputeTime} ms`);
 			}
-			console.log('Face Detection model outputs: ', fdResults);
-			console.log('Face Landmark model outputs: ', fldResults);
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').hide();
+			console.log("Face Detection model outputs: ", fdResults);
+			console.log("Face Landmark model outputs: ", fldResults);
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").hide();
 			ui.readyShowResultComponents();
 			await drawOutput(imgElement, strokedRects, keyPoints);
 			showPerfResult(medianComputeTime);
-		} else if (inputType === 'camera') {
+		} else if (inputType === "camera") {
 			stream = await utils.getMediaStream();
 			camElement.srcObject = stream;
 			stopRender = false;
 			camElement.onloadeddata = await renderCamStream();
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').show();
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").show();
 			ui.readyShowResultComponents();
 		} else {
 			throw Error(`Unknown inputType ${inputType}`);

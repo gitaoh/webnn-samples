@@ -131,7 +131,7 @@ export class WebGLUtils {
 
 		const status = this.gl_.checkFramebufferStatus(this.gl_.FRAMEBUFFER);
 		if (status !== this.gl_.FRAMEBUFFER_COMPLETE) {
-			console.warn('FBO is not complete');
+			console.warn("FBO is not complete");
 		}
 
 		this.gl_.bindFramebuffer(this.gl_.FRAMEBUFFER, null);

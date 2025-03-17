@@ -1,14 +1,14 @@
-import {GuidedFilter} from './guided_filter.js';
-import {WebGLUtils} from './webgl_utils.js';
-import {Shader} from './shader.js';
+import { GuidedFilter } from "./guided_filter.js";
+import { WebGLUtils } from "./webgl_utils.js";
+import { Shader } from "./shader.js";
 
 /* eslint max-len: ["error", {"code": 100}] */
 
 export class Renderer {
 	constructor(canvas) {
-		this.gl = canvas.getContext('webgl2');
+		this.gl = canvas.getContext("webgl2");
 		if (this.gl === null) {
-			throw new Error('Unable to initialize WebGL.');
+			throw new Error("Unable to initialize WebGL.");
 		}
 
 		this.guidedFilter = new GuidedFilter(this.gl);
@@ -23,7 +23,7 @@ export class Renderer {
 		this.imageSource_ = null;
 
 		// UI state
-		this.effect_ = 'label';
+		this.effect_ = "label";
 		this.zoom_ = 1;
 		this.bgColor_ = [57, 135, 189];
 		this.colorMapAlpha_ = 0.7;
@@ -170,26 +170,26 @@ export class Renderer {
 		this.utils.setup2dQuad();
 
 		switch (this.effect_) {
-		case 'label':
+		case "label":
 			{
 				this.setupColorizeShader_();
 			}
 			break;
-		case 'blur':
+		case "blur":
 			{
 				this.setupExtractShader_();
 				this.setupBlurShader_();
 				this.setupBlendShader_();
 			}
 			break;
-		case 'image':
+		case "image":
 			{
 				this.setupExtractShader_();
 				this.setupImageShader_();
 				this.setupBlendShader_();
 			}
 			break;
-		case 'fill':
+		case "fill":
 			{
 				this.setupExtractShader_();
 				this.setupFillShader_();
@@ -197,7 +197,7 @@ export class Renderer {
 			}
 			break;
 		default: {
-			console.warn('Unknown effect');
+			console.warn("Unknown effect");
 		}
 		}
 	}
@@ -236,25 +236,25 @@ export class Renderer {
 
 		this.shaders.colorize = new Shader(this.gl, vs, fs);
 		this.shaders.colorize.use();
-		this.shaders.colorize.set1i('u_image', 0); // texture units 0
-		this.shaders.colorize.set1i('upredictions_', 1); // texture units 1
-		this.shaders.colorize.set1i('u_palette', 2); // texture units 2
-		this.shaders.colorize.set1i('u_length', this.colorPalette_.length / 3);
+		this.shaders.colorize.set1i("u_image", 0); // texture units 0
+		this.shaders.colorize.set1i("upredictions_", 1); // texture units 1
+		this.shaders.colorize.set1i("u_palette", 2); // texture units 2
+		this.shaders.colorize.set1i("u_length", this.colorPalette_.length / 3);
 
-		if (typeof this.utils.getTexture('image') === 'undefined') {
+		if (typeof this.utils.getTexture("image") === "undefined") {
 			this.utils.createAndBindTexture({
-				name: 'image',
+				name: "image",
 				filter: this.gl.LINEAR,
 			});
 		}
 
 		this.utils.createAndBindTexture({
-			name: 'predictions',
+			name: "predictions",
 			filter: this.gl.NEAREST,
 		});
 
 		this.utils.createAndBindTexture({
-			name: 'palette',
+			name: "palette",
 			filter: this.gl.NEAREST,
 		});
 
@@ -323,33 +323,33 @@ export class Renderer {
 			this.shaders.extract = new Shader(this.gl, vsWithPreprocess, fs);
 		}
 
-		if (typeof this.utils.getTexture('image') === 'undefined') {
+		if (typeof this.utils.getTexture("image") === "undefined") {
 			this.utils.createAndBindTexture({
-				name: 'image',
+				name: "image",
 				filter: this.gl.LINEAR,
 			});
 		}
 
 		this.utils.createAndBindTexture({
-			name: 'predictions',
+			name: "predictions",
 			filter: this.gl.NEAREST,
 		});
 
-		this.utils.createTexInFrameBuffer('extract', [
+		this.utils.createTexInFrameBuffer("extract", [
 			{
-				name: 'fg',
+				name: "fg",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
 			{
-				name: 'bg',
+				name: "bg",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
 		]);
 		this.shaders.extract.use();
-		this.shaders.extract.set1i('u_image', 0); // texture units 0
-		this.shaders.extract.set1i('u_mask', 1); // texture units 1
+		this.shaders.extract.set1i("u_image", 0); // texture units 0
+		this.shaders.extract.set1i("u_mask", 1); // texture units 1
 	}
 
 	setupBlurShader_() {
@@ -393,19 +393,19 @@ export class Renderer {
 
 		this.shaders.blur = new Shader(this.gl, vs, fs);
 		this.shaders.blur.use();
-		this.shaders.blur.set1fv('kernel', this.halfKernel_);
+		this.shaders.blur.set1fv("kernel", this.halfKernel_);
 
-		this.utils.createTexInFrameBuffer('blurFirstPassResult', [
+		this.utils.createTexInFrameBuffer("blurFirstPassResult", [
 			{
-				name: 'blurFirstPassResult',
+				name: "blurFirstPassResult",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
 		]);
 
-		this.utils.createTexInFrameBuffer('styledBg', [
+		this.utils.createTexInFrameBuffer("styledBg", [
 			{
-				name: 'styledBg',
+				name: "styledBg",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
@@ -438,11 +438,11 @@ export class Renderer {
 		this.shaders.fill.use();
 		// set solid color in fill shader
 		const fillColor = this.bgColor_.map((x) => x / 255);
-		this.shaders.fill.set4f('fill_color', ...fillColor, 1);
+		this.shaders.fill.set4f("fill_color", ...fillColor, 1);
 
-		this.utils.createTexInFrameBuffer('styledBg', [
+		this.utils.createTexInFrameBuffer("styledBg", [
 			{
-				name: 'styledBg',
+				name: "styledBg",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
@@ -502,10 +502,10 @@ export class Renderer {
       }`;
 
 		this.shaders.image = new Shader(this.gl, vs, fs);
-		this.utils.createAndBindTexture({name: 'bgImage'});
-		this.utils.createTexInFrameBuffer('styledBg', [
+		this.utils.createAndBindTexture({ name: "bgImage" });
+		this.utils.createTexInFrameBuffer("styledBg", [
 			{
-				name: 'styledBg',
+				name: "styledBg",
 				width: this.clippedSize_[0] * this.zoom_,
 				height: this.clippedSize_[1] * this.zoom_,
 			},
@@ -513,13 +513,13 @@ export class Renderer {
 
 		this.shaders.image.use();
 		this.shaders.image.set2f(
-			'canvas_size',
+			"canvas_size",
 			this.clippedSize_[0],
 			this.clippedSize_[1],
 		);
 		if (this.backgroundImageSource_) {
-			this.shaders.image.set1i('has_bg', 1);
-			this.utils.bindTexture('bgImage');
+			this.shaders.image.set1i("has_bg", 1);
+			this.utils.bindTexture("bgImage");
 			this.gl.texImage2D(
 				this.gl.TEXTURE_2D,
 				0,
@@ -529,7 +529,7 @@ export class Renderer {
 				this.backgroundImageSource_,
 			);
 		} else {
-			this.shaders.image.set1i('has_bg', 0);
+			this.shaders.image.set1i("has_bg", 0);
 		}
 	}
 
@@ -563,9 +563,9 @@ export class Renderer {
 
 		this.shaders.blend = new Shader(this.gl, vs, fs);
 		this.shaders.blend.use();
-		this.shaders.blend.set1i('fg', 0); // texture units 0
-		this.shaders.blend.set1i('bg', 1); // texture units 1
-		this.shaders.blend.set1i('orig', 2); // texture units 2
+		this.shaders.blend.set1i("fg", 0); // texture units 0
+		this.shaders.blend.set1i("bg", 1); // texture units 1
+		this.shaders.blend.set1i("orig", 2); // texture units 2
 	}
 
 	async uploadNewTexture(imageSource, clippedSize) {
@@ -582,7 +582,7 @@ export class Renderer {
 
 		this.imageSource_ = imageSource;
 
-		this.utils.bindTexture('image');
+		this.utils.bindTexture("image");
 		this.gl.texImage2D(
 			this.gl.TEXTURE_2D,
 			0,
@@ -603,11 +603,11 @@ export class Renderer {
 			this.gl.drawingBufferHeight,
 		);
 
-		if (this.effect_ === 'label') {
+		if (this.effect_ === "label") {
 			// Display color labels
 			this.segMap_ = newSegMap;
 			this.predictions_ = this.maskSegMap_(newSegMap);
-			this.utils.bindTexture('predictions');
+			this.utils.bindTexture("predictions");
 			this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
 			this.gl.texImage2D(
 				this.gl.TEXTURE_2D,
@@ -627,7 +627,7 @@ export class Renderer {
 			this.predictions_ = this.maskSegMapPerson_(newSegMap);
 			if (this.guidedFilterRadius_ === 0) {
 				// guided filter is disabled
-				this.utils.bindTexture('predictions');
+				this.utils.bindTexture("predictions");
 				this.gl.pixelStorei(this.gl.UNPACK_ALIGNMENT, 1);
 				this.gl.texImage2D(
 					this.gl.TEXTURE_2D,
@@ -648,7 +648,7 @@ export class Renderer {
 					this.clippedSize_[0],
 					this.clippedSize_[1],
 				);
-				this.utils.setTexture('predictions', refinedMask);
+				this.utils.setTexture("predictions", refinedMask);
 			}
 			this.drawPerson_();
 		}
@@ -657,9 +657,9 @@ export class Renderer {
 	drawColorLabel_() {
 		const currShader = this.shaders.colorize;
 		currShader.use();
-		currShader.set1f('u_alpha', this.colorMapAlpha_);
+		currShader.set1f("u_alpha", this.colorMapAlpha_);
 		this.utils.bindFramebuffer(null);
-		this.utils.bindInputTextures(['image', 'predictions', 'palette']);
+		this.utils.bindInputTextures(["image", "predictions", "palette"]);
 		this.utils.render();
 
 		// generate label map. { labelName: [ labelName, rgbTuple ] }
@@ -680,8 +680,8 @@ export class Renderer {
 	showLegends_(labelMap) {
 		const shownLabelId = new Set();
 
-		$('.seg-label').each((i, e) => {
-			const id = $(e).attr('data-label-id');
+		$(".seg-label").each((i, e) => {
+			const id = $(e).attr("data-label-id");
 			if (!Object.prototype.hasOwnProperty.call(labelMap, id)) {
 				$(e).remove();
 			} else {
@@ -700,7 +700,7 @@ export class Renderer {
 						),
 					)
 					.append(`${labelMap[id][0]}`);
-				$('.labels-wrapper').append(labelDiv);
+				$(".labels-wrapper").append(labelDiv);
 			}
 		}
 	}
@@ -710,7 +710,7 @@ export class Renderer {
 
 		if (!hoverPos) {
 			// clear highlight when mouse leaves canvas
-			$('.seg-label').removeClass('highlight');
+			$(".seg-label").removeClass("highlight");
 			return;
 		}
 
@@ -721,52 +721,52 @@ export class Renderer {
 		const y = Math.floor(hoverPos.y / actualZoom);
 		const labelId = this.predictions_[x + y * outputW];
 
-		$('.seg-label').removeClass('highlight');
-		$('.labels-wrapper')
+		$(".seg-label").removeClass("highlight");
+		$(".labels-wrapper")
 			.find(`[data-label-id="${labelId}"]`)
-			.addClass('highlight');
+			.addClass("highlight");
 	}
 
 	drawPerson_() {
 		// feed image and mask into extract shader
 		let currShader;
 		this.shaders.extract.use();
-		this.utils.bindFramebuffer('extract');
-		this.utils.bindInputTextures(['image', 'predictions']);
+		this.utils.bindFramebuffer("extract");
+		this.utils.bindInputTextures(["image", "predictions"]);
 		this.utils.render();
 
 		switch (this.effect_) {
-		case 'blur':
+		case "blur":
 			{
 				// feed extracted background into blur shader
 				currShader = this.shaders.blur;
 				currShader.use();
 
-				currShader.set1i('first_pass', 1);
-				this.utils.bindFramebuffer('blurFirstPassResult');
-				this.utils.bindInputTextures(['bg']);
+				currShader.set1i("first_pass", 1);
+				this.utils.bindFramebuffer("blurFirstPassResult");
+				this.utils.bindInputTextures(["bg"]);
 				this.utils.render();
 
-				currShader.set1i('first_pass', 0);
-				this.utils.bindFramebuffer('styledBg');
-				this.utils.bindInputTextures(['blurFirstPassResult']);
+				currShader.set1i("first_pass", 0);
+				this.utils.bindFramebuffer("styledBg");
+				this.utils.bindInputTextures(["blurFirstPassResult"]);
 				this.utils.render();
 			}
 			break;
-		case 'image':
+		case "image":
 			{
 				// set image in image shader
 				currShader = this.shaders.image;
 				currShader.use();
-				this.utils.bindFramebuffer('styledBg');
-				this.utils.bindInputTextures(['bgImage']);
+				this.utils.bindFramebuffer("styledBg");
+				this.utils.bindInputTextures(["bgImage"]);
 				this.utils.render();
 			}
 			break;
-		case 'fill': {
+		case "fill": {
 			currShader = this.shaders.fill;
 			currShader.use();
-			this.utils.bindFramebuffer('styledBg');
+			this.utils.bindFramebuffer("styledBg");
 			this.utils.render();
 		}
 		}
@@ -774,7 +774,7 @@ export class Renderer {
 		// feed into blend shader
 		this.shaders.blend.use();
 		this.utils.bindFramebuffer(null);
-		this.utils.bindInputTextures(['fg', 'styledBg', 'image']);
+		this.utils.bindInputTextures(["fg", "styledBg", "image"]);
 		this.utils.render();
 	}
 

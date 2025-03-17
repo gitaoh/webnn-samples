@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import {buildConstantByNpy} from '../common/utils.js';
+import { buildConstantByNpy } from "../common/utils.js";
 
 /* eslint max-len: ["error", { "code": 130 }] */
 
@@ -26,76 +26,76 @@ export class NSNet2 {
 		// Create constants by loading pre-trained data from .npy files.
 		const weight172 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '172.npy',
+			baseUrl + "172.npy",
 		);
 		const biasFcIn0 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + 'fc_in_0_bias.npy',
+			baseUrl + "fc_in_0_bias.npy",
 		);
 		const weight192 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '192.npy',
+			baseUrl + "192.npy",
 		);
 		const recurrentWeight193 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '193.npy',
+			baseUrl + "193.npy",
 		);
 		const bias194 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '194_0.npy',
+			baseUrl + "194_0.npy",
 		);
 		const recurrentBias194 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '194_1.npy',
+			baseUrl + "194_1.npy",
 		);
 		const weight212 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '212.npy',
+			baseUrl + "212.npy",
 		);
 		const recurrentWeight213 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '213.npy',
+			baseUrl + "213.npy",
 		);
 		const bias214 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '214_0.npy',
+			baseUrl + "214_0.npy",
 		);
 		const recurrentBias214 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '214_1.npy',
+			baseUrl + "214_1.npy",
 		);
 		const weight215 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '215.npy',
+			baseUrl + "215.npy",
 		);
 		const biasFcOut0 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + 'fc_out_0_bias.npy',
+			baseUrl + "fc_out_0_bias.npy",
 		);
 		const weight216 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '216.npy',
+			baseUrl + "216.npy",
 		);
 		const biasFcOut2 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + 'fc_out_2_bias.npy',
+			baseUrl + "fc_out_2_bias.npy",
 		);
 		const weight217 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + '217.npy',
+			baseUrl + "217.npy",
 		);
 		const biasFcOut4 = await buildConstantByNpy(
 			this.builder_,
-			baseUrl + 'fc_out_4_bias.npy',
+			baseUrl + "fc_out_4_bias.npy",
 		);
 		// Build up the network.
 		const inputShape = [batchSize, frames, this.frameSize];
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: inputShape,
 			shape: inputShape,
 		};
-		const input = this.builder_.input('input', inputDesc);
+		const input = this.builder_.input("input", inputDesc);
 
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
@@ -112,12 +112,12 @@ export class NSNet2 {
 		});
 		const initialStateShape = [1, batchSize, this.hiddenSize];
 		const initialStateDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: initialStateShape,
 			shape: initialStateShape,
 		};
 		const initialState92 = this.builder_.input(
-			'initialState92',
+			"initialState92",
 			initialStateDesc,
 		);
 		const [gru94, gru93] = this.builder_.gru(
@@ -134,12 +134,12 @@ export class NSNet2 {
 			},
 		);
 		// Use reshape to implement squeeze(gru93, {axes: [1]});
-		const isShapeMethod = typeof gru93.shape === 'function';
+		const isShapeMethod = typeof gru93.shape === "function";
 		const squeeze95Shape = isShapeMethod ? gru93.shape() : [...gru93.shape];
 		squeeze95Shape.splice(1, 1);
 		const squeeze95 = this.builder_.reshape(gru93, squeeze95Shape);
 		const initialState155 = this.builder_.input(
-			'initialState155',
+			"initialState155",
 			initialStateDesc,
 		);
 
@@ -151,7 +151,7 @@ export class NSNet2 {
 			await this.context_.createTensor(initialStateDesc);
 
 		this.outputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: inputShape,
 			shape: inputShape, // Same as inputShape.
 			usage: MLTensorUsage.READ,
@@ -159,7 +159,7 @@ export class NSNet2 {
 		});
 		const gruOutputShape = [1, batchSize, this.hiddenSize];
 		const gruOutputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: gruOutputShape,
 			shape: gruOutputShape,
 			usage: MLTensorUsage.READ,
@@ -209,7 +209,7 @@ export class NSNet2 {
 			),
 		);
 
-		return {output, gru94, gru157};
+		return { output, gru94, gru157 };
 	}
 
 	async build(outputOperand) {

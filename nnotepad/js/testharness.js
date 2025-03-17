@@ -9,12 +9,12 @@
 export class Harness {
 	static section(s) {
 		Harness.current = {
-			details: document.createElement('details'),
-			summary: Object.assign(document.createElement('summary'), {
+			details: document.createElement("details"),
+			summary: Object.assign(document.createElement("summary"), {
 				innerText: s,
 			}),
-			counts: Object.assign(document.createElement('div'), {
-				className: 'counts',
+			counts: Object.assign(document.createElement("div"), {
+				className: "counts",
 			}),
 			pass: 0,
 			fail: 0,
@@ -25,12 +25,14 @@ export class Harness {
 	}
 
 	static updateCounts() {
-		Harness.current.counts.innerText = `pass: ${Harness.current.pass} / fail: ${Harness.current.fail}`;
+		Harness.current.counts.innerText =
+			`pass: ${Harness.current.pass}` +
+			` / fail: ${Harness.current.fail}`;
 	}
 
 	static log(s, options) {
 		Harness.current.details.append(
-			Object.assign(document.createElement('div'), options, {
+			Object.assign(document.createElement("div"), options, {
 				innerText: s,
 			}),
 		);
@@ -43,7 +45,7 @@ export class Harness {
 	}
 
 	static error(s) {
-		Harness.log(s, {className: 'failure'});
+		Harness.log(s, { className: "failure" });
 		Harness.current.fail += 1;
 		Harness.updateCounts();
 		Harness.current.details.open = true;

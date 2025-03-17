@@ -1,21 +1,21 @@
-'use strict';
+"use strict";
 
-import {DeepLabV3MNV2Nchw} from './deeplabv3_mnv2_nchw.js';
-import {DeepLabV3MNV2Nhwc} from './deeplabv3_mnv2_nhwc.js';
-import * as ui from '../common/ui.js';
-import * as utils from '../common/utils.js';
-import {Renderer} from './lib/renderer.js';
+import * as ui from "../common/ui.js";
+import * as utils from "../common/utils.js";
+import { DeepLabV3MNV2Nchw } from "./deeplabv3_mnv2_nchw.js";
+import { DeepLabV3MNV2Nhwc } from "./deeplabv3_mnv2_nhwc.js";
+import { Renderer } from "./lib/renderer.js";
 
-const imgElement = document.getElementById('feedElement');
-imgElement.src = './images/test.jpg';
-const camElement = document.getElementById('feedMediaElement');
-const outputCanvas = document.getElementById('outputCanvas');
-let modelName = '';
-let layout = 'nhwc';
+const imgElement = document.getElementById("feedElement");
+imgElement.src = "./images/test.jpg";
+const camElement = document.getElementById("feedMediaElement");
+const outputCanvas = document.getElementById("outputCanvas");
+let modelName = "";
+let layout = "nhwc";
 let instanceType = modelName + layout;
 let rafReq;
 let isFirstTimeLoad = true;
-let inputType = 'image';
+let inputType = "image";
 let netInstance = null;
 let labels = null;
 let stream = null;
@@ -25,43 +25,43 @@ let computeTime = 0;
 let inputOptions;
 let renderer;
 let hoverPos = null;
-let deviceType = '';
-let lastdeviceType = '';
-let backend = '';
-let lastBackend = '';
+let deviceType = "";
+let lastdeviceType = "";
+let backend = "";
+let lastBackend = "";
 let stopRender = true;
 let isRendering = false;
-const disabledSelectors = ['#tabs > li', '.btn'];
+const disabledSelectors = ["#tabs > li", ".btn"];
 
 $(document).ready(async () => {
-	$('.icdisplay').hide();
+	$(".icdisplay").hide();
 	if (await utils.isWebNN()) {
-		$('#webnn_cpu').click();
+		$("#webnn_cpu").click();
 	} else {
 		console.log(utils.webNNNotSupportMessage());
 		ui.addAlert(utils.webNNNotSupportMessageHTML());
 	}
 });
 
-$(window).on('load', () => {
+$(window).on("load", () => {
 	renderer = new Renderer(outputCanvas);
 	renderer.setup();
 	loadRenderUI();
 });
 
-$('#backendBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#backendBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	layout = utils.getDefaultLayout($(e.target).attr('id'));
+	layout = utils.getDefaultLayout($(e.target).attr("id"));
 	await main();
 });
 
-$('#modelBtns .btn').on('change', async (e) => {
-	if (inputType === 'camera') {
+$("#modelBtns .btn").on("change", async (e) => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	}
-	modelName = $(e.target).attr('id');
+	modelName = $(e.target).attr("id");
 	await main();
 });
 
@@ -74,49 +74,49 @@ $('#modelBtns .btn').on('change', async (e) => {
 // });
 
 // Click trigger to do inference with <img> element
-$('#img').click(async () => {
-	if (inputType === 'camera') {
+$("#img").click(async () => {
+	if (inputType === "camera") {
 		await stopCamRender();
 	} else {
 		return;
 	}
-	inputType = 'image';
-	$('#pickimage').show();
-	$('.shoulddisplay').hide();
+	inputType = "image";
+	$("#pickimage").show();
+	$(".shoulddisplay").hide();
 	await main();
 });
 
-$('#imageFile').change((e) => {
+$("#imageFile").change((e) => {
 	const files = e.target.files;
 	if (files.length > 0) {
-		$('#feedElement').removeAttr('height');
-		$('#feedElement').removeAttr('width');
+		$("#feedElement").removeAttr("height");
+		$("#feedElement").removeAttr("width");
 		imgElement.src = URL.createObjectURL(files[0]);
 	}
 });
 
-$('#feedElement').on('load', async () => {
+$("#feedElement").on("load", async () => {
 	if (!isFirstTimeLoad) {
 		await main();
 	}
 });
 
 // Click trigger to do inference with <video> media element
-$('#cam').click(async () => {
-	if (inputType == 'camera') return;
-	inputType = 'camera';
-	$('#pickimage').hide();
-	$('.shoulddisplay').hide();
+$("#cam").click(async () => {
+	if (inputType == "camera") return;
+	inputType = "camera";
+	$("#pickimage").hide();
+	$(".shoulddisplay").hide();
 	await main();
 });
 
 function loadRenderUI() {
-	const blurSlider = document.getElementById('blurSlider');
-	const refineEdgeSlider = document.getElementById('refineEdgeSlider');
-	const colorMapAlphaSlider = document.getElementById('colorMapAlphaSlider');
-	const selectBackgroundButton = document.getElementById('chooseBackground');
-	const clearBackgroundButton = document.getElementById('clearBackground');
-	const colorPicker = new iro.ColorPicker('#color-picker-container', {
+	const blurSlider = document.getElementById("blurSlider");
+	const refineEdgeSlider = document.getElementById("refineEdgeSlider");
+	const colorMapAlphaSlider = document.getElementById("colorMapAlphaSlider");
+	const selectBackgroundButton = document.getElementById("chooseBackground");
+	const clearBackgroundButton = document.getElementById("clearBackground");
+	const colorPicker = new iro.ColorPicker("#color-picker-container", {
 		width: 200,
 		height: 200,
 		color: {
@@ -129,67 +129,67 @@ function loadRenderUI() {
 		sliderHeight: 20,
 	});
 
-	$('.bg-value').html(colorPicker.color.hexString);
+	$(".bg-value").html(colorPicker.color.hexString);
 
-	colorPicker.on('color:change', (color) => {
-		$('.bg-value').html(color.hexString);
+	colorPicker.on("color:change", (color) => {
+		$(".bg-value").html(color.hexString);
 		renderer.bgColor = [color.rgb.r, color.rgb.g, color.rgb.b];
 	});
 
 	colorMapAlphaSlider.value = renderer.colorMapAlpha * 100;
-	$('.color-map-alpha-value').html(renderer.colorMapAlpha);
+	$(".color-map-alpha-value").html(renderer.colorMapAlpha);
 
 	colorMapAlphaSlider.oninput = () => {
 		const alpha = colorMapAlphaSlider.value / 100;
-		$('.color-map-alpha-value').html(alpha);
+		$(".color-map-alpha-value").html(alpha);
 		renderer.colorMapAlpha = alpha;
 	};
 
 	blurSlider.value = renderer.blurRadius;
-	$('.blur-radius-value').html(renderer.blurRadius + 'px');
+	$(".blur-radius-value").html(renderer.blurRadius + "px");
 
 	blurSlider.oninput = () => {
 		const blurRadius = parseInt(blurSlider.value);
-		$('.blur-radius-value').html(blurRadius + 'px');
+		$(".blur-radius-value").html(blurRadius + "px");
 		renderer.blurRadius = blurRadius;
 	};
 
 	refineEdgeSlider.value = renderer.refineEdgeRadius;
 
-	if (refineEdgeSlider.value === '0') {
-		$('.refine-edge-value').html('DISABLED');
+	if (refineEdgeSlider.value === "0") {
+		$(".refine-edge-value").html("DISABLED");
 	} else {
-		$('.refine-edge-value').html(refineEdgeSlider.value + 'px');
+		$(".refine-edge-value").html(refineEdgeSlider.value + "px");
 	}
 
 	refineEdgeSlider.oninput = () => {
 		const refineEdgeRadius = parseInt(refineEdgeSlider.value);
 		if (refineEdgeRadius === 0) {
-			$('.refine-edge-value').html('DISABLED');
+			$(".refine-edge-value").html("DISABLED");
 		} else {
-			$('.refine-edge-value').html(refineEdgeRadius + 'px');
+			$(".refine-edge-value").html(refineEdgeRadius + "px");
 		}
 		renderer.refineEdgeRadius = refineEdgeRadius;
 	};
 
-	$('.effects-select .btn input')
+	$(".effects-select .btn input")
 		.filter((e) => {
 			return e.value === renderer.effect;
 		})
 		.parent()
-		.toggleClass('active');
+		.toggleClass("active");
 
-	$('.controls').attr('data-select', renderer.effect);
+	$(".controls").attr("data-select", renderer.effect);
 
-	$('.effects-select .btn').click((e) => {
+	$(".effects-select .btn").click((e) => {
 		e.preventDefault();
 		const effect = e.target.children[0].value;
-		$('.controls').attr('data-select', effect);
+		$(".controls").attr("data-select", effect);
 		renderer.effect = effect;
 	});
 
 	selectBackgroundButton.addEventListener(
-		'change',
+		"change",
 		(e) => {
 			const files = e.target.files;
 			if (files.length > 0) {
@@ -204,14 +204,14 @@ function loadRenderUI() {
 	);
 
 	clearBackgroundButton.addEventListener(
-		'click',
+		"click",
 		(e) => {
 			renderer.backgroundImageSource = null;
 		},
 		false,
 	);
 
-	outputCanvas.addEventListener('mousemove', (e) => {
+	outputCanvas.addEventListener("mousemove", (e) => {
 		const getMousePos = (canvas, evt) => {
 			const rect = canvas.getBoundingClientRect();
 			return {
@@ -224,7 +224,7 @@ function loadRenderUI() {
 		renderer.highlightHoverLabel(hoverPos, outputCanvas);
 	});
 
-	outputCanvas.addEventListener('mouseleave', (e) => {
+	outputCanvas.addEventListener("mouseleave", (e) => {
 		hoverPos = null;
 		renderer.highlightHoverLabel(hoverPos, outputCanvas);
 	});
@@ -233,7 +233,7 @@ function loadRenderUI() {
 async function fetchLabels(url) {
 	const response = await fetch(url);
 	const data = await response.text();
-	return data.split('\n');
+	return data.split("\n");
 }
 
 function stopCamRender() {
@@ -255,7 +255,8 @@ function stopCamRender() {
  */
 async function renderCamStream() {
 	if (!stream.active || stopRender) return;
-	// If the video element's readyState is 0, the video's width and height are 0.
+	// If the video element's readyState is 0, the video's
+	// width and height are 0.
 	// So check the readState here to make sure it is greater than 0.
 	if (camElement.readyState === 0) {
 		rafReq = requestAnimationFrame(renderCamStream);
@@ -264,15 +265,15 @@ async function renderCamStream() {
 	isRendering = true;
 	const inputBuffer = utils.getInputTensor(camElement, inputOptions);
 	const inputCanvas = utils.getVideoFrame(camElement);
-	console.log('- Computing... ');
+	console.log("- Computing... ");
 	const start = performance.now();
 	const outputBuffer = await netInstance.compute(inputBuffer);
 	computeTime = (performance.now() - start).toFixed(2);
 	console.log(`  done in ${computeTime} ms.`);
 	showPerfResult();
 	await drawOutput(inputCanvas, outputBuffer);
-	$('#fps').text(`${(1000 / computeTime).toFixed(0)} FPS`);
-	if ($('.icdisplay').is(':hidden')) {
+	$("#fps").text(`${(1000 / computeTime).toFixed(0)} FPS`);
+	if ($(".icdisplay").is(":hidden")) {
 		// Ready to show result components
 		ui.readyShowResultComponents();
 	}
@@ -283,12 +284,13 @@ async function renderCamStream() {
 }
 
 async function drawOutput(srcElement, outputBuffer) {
-	// TODO: move 'argMax' operation to graph once it is supported in WebNN spec.
+	// TODO: move 'argMax' operation to graph once it is
+	// supported in WebNN spec.
 	// https://github.com/webmachinelearning/webnn/issues/184
 	const [argMaxBuffer, outputShape] = tf.tidy(() => {
-		const a = tf.tensor(outputBuffer, netInstance.outputShape, 'float32');
+		const a = tf.tensor(outputBuffer, netInstance.outputShape, "float32");
 		let axis = 3;
-		if (layout === 'nchw') {
+		if (layout === "nchw") {
 			axis = 1;
 		}
 		const b = tf.argMax(a, axis);
@@ -314,14 +316,14 @@ async function drawOutput(srcElement, outputBuffer) {
 }
 
 function showPerfResult(medianComputeTime = undefined) {
-	$('#loadTime').html(`${loadTime} ms`);
-	$('#buildTime').html(`${buildTime} ms`);
+	$("#loadTime").html(`${loadTime} ms`);
+	$("#buildTime").html(`${buildTime} ms`);
 	if (medianComputeTime !== undefined) {
-		$('#computeLabel').html('Median inference time:');
-		$('#computeTime').html(`${medianComputeTime} ms`);
+		$("#computeLabel").html("Median inference time:");
+		$("#computeTime").html(`${medianComputeTime} ms`);
 	} else {
-		$('#computeLabel').html('Inference time:');
-		$('#computeTime').html(`${computeTime} ms`);
+		$("#computeLabel").html("Inference time:");
+		$("#computeTime").html(`${computeTime} ms`);
 	}
 }
 
@@ -336,12 +338,12 @@ function constructNetObject(type) {
 
 export async function main() {
 	try {
-		if (modelName === '') return;
-		[backend, deviceType] = $('input[name="backend"]:checked')
-			.attr('id')
-			.split('_');
+		if (modelName === "") return;
+		[backend, deviceType] = $("input[name=\"backend\"]:checked")
+			.attr("id")
+			.split("_");
 		ui.handleClick(disabledSelectors, true);
-		if (isFirstTimeLoad) $('#hint').hide();
+		if (isFirstTimeLoad) $("#hint").hide();
 		let start;
 		const [numRuns, powerPreference, numThreads] = utils.getUrlParams();
 
@@ -368,32 +370,32 @@ export async function main() {
 				`- Model name: ${modelName}, Model layout: ${layout} -`,
 			);
 			// UI shows model loading progress
-			await ui.showProgressComponent('current', 'pending', 'pending');
-			console.log('- Loading weights... ');
-			const contextOptions = {deviceType};
+			await ui.showProgressComponent("current", "pending", "pending");
+			console.log("- Loading weights... ");
+			const contextOptions = { deviceType };
 			if (powerPreference) {
-				contextOptions['powerPreference'] = powerPreference;
+				contextOptions["powerPreference"] = powerPreference;
 			}
 			if (numThreads) {
-				contextOptions['numThreads'] = numThreads;
+				contextOptions["numThreads"] = numThreads;
 			}
 			start = performance.now();
 			const outputOperand = await netInstance.load(contextOptions);
 			loadTime = (performance.now() - start).toFixed(2);
 			console.log(`  done in ${loadTime} ms.`);
 			// UI shows model building progress
-			await ui.showProgressComponent('done', 'current', 'pending');
-			console.log('- Building... ');
+			await ui.showProgressComponent("done", "current", "pending");
+			console.log("- Building... ");
 			start = performance.now();
 			await netInstance.build(outputOperand);
 			buildTime = (performance.now() - start).toFixed(2);
 			console.log(`  done in ${buildTime} ms.`);
 		}
 		// UI shows inferencing progress
-		await ui.showProgressComponent('done', 'done', 'current');
-		if (inputType === 'image') {
+		await ui.showProgressComponent("done", "done", "current");
+		if (inputType === "image") {
 			const inputBuffer = utils.getInputTensor(imgElement, inputOptions);
-			console.log('- Computing... ');
+			console.log("- Computing... ");
 			const computeTimeArray = [];
 			let medianComputeTime;
 
@@ -412,19 +414,19 @@ export async function main() {
 				medianComputeTime = medianComputeTime.toFixed(2);
 				console.log(`  median compute time: ${medianComputeTime} ms`);
 			}
-			console.log('output: ', outputBuffer);
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').hide();
+			console.log("output: ", outputBuffer);
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").hide();
 			ui.readyShowResultComponents();
 			await drawOutput(imgElement, outputBuffer);
 			showPerfResult(medianComputeTime);
-		} else if (inputType === 'camera') {
+		} else if (inputType === "camera") {
 			stream = await utils.getMediaStream();
 			camElement.srcObject = stream;
 			stopRender = false;
 			camElement.onloadeddata = await renderCamStream();
-			await ui.showProgressComponent('done', 'done', 'done');
-			$('#fps').show();
+			await ui.showProgressComponent("done", "done", "done");
+			$("#fps").show();
 		} else {
 			throw Error(`Unknown inputType ${inputType}`);
 		}

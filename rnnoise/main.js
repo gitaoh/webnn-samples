@@ -1,40 +1,40 @@
-import {Processer} from './processer.js';
-import {RNNoise} from './rnnoise.js';
-import * as utils from '../common/utils.js';
-import {addAlert} from '../common/ui.js';
+import { Processer } from "./processer.js";
+import { RNNoise } from "./rnnoise.js";
+import * as utils from "../common/utils.js";
+import { addAlert } from "../common/ui.js";
 
 const batchSize = 1;
 const frames = 100; // Frames is fixed at 100
 const frameSize = 480;
-const weightsUrl = utils.weightsOrigin() + '/test-data/models/rnnoise/weights/';
+const weightsUrl = utils.weightsOrigin() + "/test-data/models/rnnoise/weights/";
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
 
-$('#backendBtns .btn').on('change', async () => {
+$("#backendBtns .btn").on("change", async () => {
 	await main();
 });
 
 const sampleAudios = [
 	{
-		name: 'voice1',
-		url: './audio/voice1.wav',
+		name: "voice1",
+		url: "./audio/voice1.wav",
 	},
 	{
-		name: 'voice2',
-		url: './audio/voice2.wav',
+		name: "voice2",
+		url: "./audio/voice2.wav",
 	},
 	{
-		name: 'voice3',
-		url: './audio/voice3.wav',
+		name: "voice3",
+		url: "./audio/voice3.wav",
 	},
 ];
 
-const audioName = document.getElementById('audio-name');
-const modelInfo = document.getElementById('info');
-const DenoiseInfo = document.getElementById('denoise-info');
-const fileInput = document.getElementById('file-input');
-const originalAudio = document.getElementById('original-audio');
-const denoisedAudio = document.getElementById('denoised-audio');
-const recorderWorker = new Worker('./utils/recorderWorker.js');
+const audioName = document.getElementById("audio-name");
+const modelInfo = document.getElementById("info");
+const DenoiseInfo = document.getElementById("denoise-info");
+const fileInput = document.getElementById("file-input");
+const originalAudio = document.getElementById("original-audio");
+const denoisedAudio = document.getElementById("denoised-audio");
+const recorderWorker = new Worker("./utils/recorderWorker.js");
 
 $(document).ready(async () => {
 	if (!(await utils.isWebNN())) {
@@ -44,8 +44,8 @@ $(document).ready(async () => {
 });
 
 recorderWorker.postMessage({
-	command: 'init',
-	config: {sampleRate: 48000, numChannels: 1},
+	command: "init",
+	config: { sampleRate: 48000, numChannels: 1 },
 });
 
 recorderWorker.onmessage = function(e) {
@@ -53,17 +53,17 @@ recorderWorker.onmessage = function(e) {
 	denoisedAudio.src = URL.createObjectURL(blob);
 };
 
-const wasmScript = document.createElement('script');
-wasmScript.type = 'text/javascript';
+const wasmScript = document.createElement("script");
+wasmScript.type = "text/javascript";
 wasmScript.onload = function() {
-	console.log('WASM script loaded!');
+	console.log("WASM script loaded!");
 	Module.onRuntimeInitialized = function() {
-		console.log('WASM Runtime Ready.');
-		console.log('DSP library Loaded.');
+		console.log("WASM Runtime Ready.");
+		console.log("DSP library Loaded.");
 	};
 };
-wasmScript.src = 'process/process.js';
-document.getElementsByTagName('head')[0].appendChild(wasmScript);
+wasmScript.src = "process/process.js";
+document.getElementsByTagName("head")[0].appendChild(wasmScript);
 
 function getUrlById(audioList, id) {
 	for (const audio of Object.values(audioList).flat()) {
@@ -78,9 +78,9 @@ async function log(infoElement, message, sep = false, append = true) {
 	await new Promise((resolve) => {
 		setTimeout(() => {
 			infoElement.innerHTML =
-				(append ? infoElement.innerHTML : '') +
+				(append ? infoElement.innerHTML : "") +
 				message +
-				(sep ? '<br>' : '');
+				(sep ? "<br>" : "");
 			resolve();
 		}, 0);
 	});
@@ -96,7 +96,7 @@ denoisedAudio.onplay = () => {
 
 async function denoise() {
 	const audioData = [];
-	const audioContext = new AudioContext({sampleRate: 48000});
+	const audioContext = new AudioContext({ sampleRate: 48000 });
 	const vadInitialHiddenStateBuffer = new Float32Array(
 		rnnoise.vadGruNumDirections * batchSize * rnnoise.vadGruHiddenSize,
 	).fill(0);
@@ -115,9 +115,9 @@ async function denoise() {
 		denoiseGruInitialH: denoiseInitialHiddenStateBuffer,
 	};
 
-	if (audioContext.state != 'running') {
+	if (audioContext.state != "running") {
 		audioContext.resume().then(function() {
-			console.log('audioContext resumed.');
+			console.log("audioContext resumed.");
 		});
 	}
 	const analyser = new Processer(audioContext, originalAudio, frames);
@@ -155,13 +155,13 @@ async function denoise() {
 
 		await log(
 			DenoiseInfo,
-			`Denoising...  ` +
+			"Denoising...  " +
 				`(${Math.ceil(((i + 1) / numInputs) * 100)}%)<br>` +
-				` - preProcessing time: <span class='text-primary'>` +
+				" - preProcessing time: <span class='text-primary'>" +
 				`${preProcessingTime}</span> ms.<br>` +
-				` - RNNoise compute time: <span class='text-primary'>` +
+				" - RNNoise compute time: <span class='text-primary'>" +
 				`${executionTime}</span> ms.<br>` +
-				` - postProcessing time: <span class='text-primary'>` +
+				" - postProcessing time: <span class='text-primary'>" +
 				`${postProcessingTime}</span> ms.`,
 			true,
 			false,
@@ -177,44 +177,44 @@ async function denoise() {
 
 	// Send the denoised audio data for wav encoding.
 	recorderWorker.postMessage({
-		command: 'clear',
+		command: "clear",
 	});
 	recorderWorker.postMessage({
-		command: 'record',
+		command: "record",
 		buffer: [new Float32Array(audioData)],
 	});
 	recorderWorker.postMessage({
-		command: 'exportWAV',
-		type: 'audio/wav',
+		command: "exportWAV",
+		type: "audio/wav",
 	});
 }
 
-$('.dropdown-item').click(async (e) => {
-	const audioId = $(e.target).attr('id');
-	if (audioId == 'browse') {
-		const evt = document.createEvent('MouseEvents');
-		evt.initEvent('click', true, false);
+$(".dropdown-item").click(async (e) => {
+	const audioId = $(e.target).attr("id");
+	if (audioId == "browse") {
+		const evt = document.createEvent("MouseEvents");
+		evt.initEvent("click", true, false);
 		fileInput.dispatchEvent(evt);
 	} else {
 		const audioUrl = getUrlById(sampleAudios, audioId);
 		log(
 			audioName,
-			audioUrl.substring(audioUrl.lastIndexOf('/') + 1),
+			audioUrl.substring(audioUrl.lastIndexOf("/") + 1),
 			false,
 			false,
 		);
 		originalAudio.src = audioUrl;
-		denoisedAudio.src = '';
+		denoisedAudio.src = "";
 		await denoise();
 	}
 });
 
-fileInput.addEventListener('input', (event) => {
+fileInput.addEventListener("input", (event) => {
 	log(audioName, event.target.files[0].name, false, false);
 	const reader = new FileReader();
 	reader.onload = async function(e) {
 		originalAudio.src = e.target.result;
-		denoisedAudio.src = '';
+		denoisedAudio.src = "";
 		await denoise();
 	};
 	reader.readAsDataURL(event.target.files[0]);
@@ -222,26 +222,26 @@ fileInput.addEventListener('input', (event) => {
 
 export async function main() {
 	try {
-		const [backend, deviceType] = $('input[name="backend"]:checked')
-			.attr('id')
-			.split('_');
+		const [backend, deviceType] = $("input[name=\"backend\"]:checked")
+			.attr("id")
+			.split("_");
 		console.log(`${backend} ${deviceType}`);
-		modelInfo.innerHTML = '';
+		modelInfo.innerHTML = "";
 		await log(
 			modelInfo,
-			`Creating RNNoise with input shape ` +
+			"Creating RNNoise with input shape " +
 				`[${batchSize} (batch_size) x 100 (frames) x 42].`,
 			true,
 		);
-		await log(modelInfo, '- Loading model...');
+		await log(modelInfo, "- Loading model...");
 		const powerPreference = utils.getUrlParams()[1];
-		const contextOptions = {deviceType};
+		const contextOptions = { deviceType };
 		if (powerPreference) {
-			contextOptions['powerPreference'] = powerPreference;
+			contextOptions["powerPreference"] = powerPreference;
 		}
 		const numThreads = utils.getUrlParams()[2];
 		if (numThreads) {
-			contextOptions['numThreads'] = numThreads;
+			contextOptions["numThreads"] = numThreads;
 		}
 		let start = performance.now();
 		const outputOperand = await rnnoise.load(contextOptions);
@@ -252,7 +252,7 @@ export async function main() {
 			`done in <span class='text-primary'>${loadingTime}</span> ms.`,
 			true,
 		);
-		await log(modelInfo, '- Building model...');
+		await log(modelInfo, "- Building model...");
 		start = performance.now();
 		await rnnoise.build(outputOperand);
 		const buildTime = (performance.now() - start).toFixed(2);
@@ -262,8 +262,8 @@ export async function main() {
 			`done in <span class='text-primary'>${buildTime}</span> ms.`,
 			true,
 		);
-		await log(modelInfo, 'RNNoise is <b>ready</b>.');
-		$('#choose-audio').attr('disabled', false);
+		await log(modelInfo, "RNNoise is <b>ready</b>.");
+		$("#choose-audio").attr("disabled", false);
 	} catch (error) {
 		console.log(error);
 		addAlert(error.message);

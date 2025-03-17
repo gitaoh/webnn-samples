@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 export class Processer {
 	constructor(audioContext, audioElement, frames) {
@@ -28,9 +28,9 @@ export class Processer {
 		for (let i = 0; i < pcmLength; i++) {
 			Module.HEAPF32[pcmPtr / 4 + i] = pcm[i];
 		}
-		const getFeatures = Module.cwrap('pre_processing', 'number', [
-			'number',
-			'number',
+		const getFeatures = Module.cwrap("pre_processing", "number", [
+			"number",
+			"number",
 		]);
 		const featuresPtr = getFeatures(pcmPtr, this.frames);
 		const features = [];
@@ -50,9 +50,9 @@ export class Processer {
 		for (let i = 0; i < gainsLength; i++) {
 			Module.HEAPF32[gainsPtr / 4 + i] = gains[i];
 		}
-		const getAudio = Module.cwrap('post_processing', 'number', [
-			'number',
-			'number',
+		const getAudio = Module.cwrap("post_processing", "number", [
+			"number",
+			"number",
 		]);
 		const audioPtr = getAudio(gainsPtr, this.frames);
 		const audio = [];

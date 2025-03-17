@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
 import {
 	buildConstantByNpy,
 	computePadding2DForAutoPad,
 	weightsOrigin,
-} from '../common/utils.js';
+} from "../common/utils.js";
 const strides = [2, 2];
-const autoPad = 'same-upper';
+const autoPad = "same-upper";
 
 /* eslint-disable camelcase */
 
@@ -19,16 +19,16 @@ export class FaceNetNhwc {
 		this.inputTensor_ = null;
 		this.outputTensor_ = null;
 		this.weightsUrl_ =
-			weightsOrigin() + '/test-data/models/facenet_nhwc/weights';
+			weightsOrigin() + "/test-data/models/facenet_nhwc/weights";
 		this.inputOptions = {
 			mean: [127.5, 127.5, 127.5, 127.5],
 			std: [127.5, 127.5, 127.5, 127.5],
-			channelScheme: 'BGR',
-			inputLayout: 'nhwc',
+			channelScheme: "BGR",
+			inputLayout: "nhwc",
 			inputShape: [1, 160, 160, 3],
 		};
 		this.postOptions = {
-			distanceMetric: 'euclidean',
+			distanceMetric: "euclidean",
 			threshold: 1.26,
 		};
 		this.outputShape_ = [1, 512];
@@ -43,23 +43,24 @@ export class FaceNetNhwc {
 			),
 		);
 		if (options !== undefined) {
-			options.inputLayout = 'nhwc';
-			options.filterLayout = 'ohwi';
+			options.inputLayout = "nhwc";
+			options.filterLayout = "ohwi";
 			options.bias = bias;
 		} else {
 			options = {
-				inputLayout: 'nhwc',
-				filterLayout: 'ohwi',
+				inputLayout: "nhwc",
+				filterLayout: "ohwi",
 				bias: bias,
 			};
 		}
 
 		input = await input;
-		const isShapeMethod = typeof input.shape === 'function';
+		const isShapeMethod = typeof input.shape === "function";
 		const inputShape = isShapeMethod ? input.shape() : input.shape;
 		const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
-		// WebNN spec drops autoPad support, compute the explicit padding instead.
-		if (options.autoPad == 'same-upper') {
+		// WebNN spec drops autoPad support, compute the explicit padding
+		// instead.
+		if (options.autoPad == "same-upper") {
 			options.padding = computePadding2DForAutoPad(
 				/* nwhc */ [inputShape[1], inputShape[2]],
 				/* ohwi */ [weightsShape[1], weightsShape[2]],
@@ -76,32 +77,32 @@ export class FaceNetNhwc {
 		const branch0 = this.buildConv_(
 			input,
 			`Block35_${indice}_Branch_0_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_0 = this.buildConv_(
 			input,
 			`Block35_${indice}_Branch_1_Conv2d_0a_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_1 = this.buildConv_(
 			branch1_0,
 			`Block35_${indice}_Branch_1_Conv2d_0b_3x3`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch2_0 = this.buildConv_(
 			input,
 			`Block35_${indice}_Branch_2_Conv2d_0a_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch2_1 = this.buildConv_(
 			branch2_0,
 			`Block35_${indice}_Branch_2_Conv2d_0b_3x3`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch2_2 = this.buildConv_(
 			branch2_1,
 			`Block35_${indice}_Branch_2_Conv2d_0c_3x3`,
-			{autoPad},
+			{ autoPad },
 		);
 
 		const concat = Promise.all([branch0, branch1_1, branch2_2]).then(
@@ -110,7 +111,7 @@ export class FaceNetNhwc {
 		const conv = this.buildConv_(
 			concat,
 			`Block35_${indice}_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 			false,
 		);
 
@@ -121,22 +122,22 @@ export class FaceNetNhwc {
 		const branch0 = this.buildConv_(
 			input,
 			`Block17_${indice}_Branch_0_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_0 = this.buildConv_(
 			input,
 			`Block17_${indice}_Branch_1_Conv2d_0a_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_1 = this.buildConv_(
 			branch1_0,
 			`Block17_${indice}_Branch_1_Conv2d_0b_1x7`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_2 = this.buildConv_(
 			branch1_1,
 			`Block17_${indice}_Branch_1_Conv2d_0c_7x1`,
-			{autoPad},
+			{ autoPad },
 		);
 
 		const concat = Promise.all([branch0, branch1_2]).then((inputs) =>
@@ -145,7 +146,7 @@ export class FaceNetNhwc {
 		const conv = this.buildConv_(
 			concat,
 			`Block17_${indice}_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 			false,
 		);
 
@@ -156,22 +157,22 @@ export class FaceNetNhwc {
 		const branch0 = this.buildConv_(
 			input,
 			`Block8_${indice}_Branch_0_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_0 = this.buildConv_(
 			input,
 			`Block8_${indice}_Branch_1_Conv2d_0a_1x1`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_1 = this.buildConv_(
 			branch1_0,
 			`Block8_${indice}_Branch_1_Conv2d_0b_1x3`,
-			{autoPad},
+			{ autoPad },
 		);
 		const branch1_2 = this.buildConv_(
 			branch1_1,
 			`Block8_${indice}_Branch_1_Conv2d_0c_3x1`,
-			{autoPad},
+			{ autoPad },
 		);
 
 		const concat = Promise.all([branch0, branch1_2]).then((inputs) =>
@@ -180,7 +181,7 @@ export class FaceNetNhwc {
 		const conv = this.buildConv_(
 			concat,
 			`Block8_${indice}_Conv2d_1x1`,
-			{autoPad},
+			{ autoPad },
 			false,
 		);
 
@@ -214,16 +215,16 @@ export class FaceNetNhwc {
 		this.context_ = await navigator.ml.createContext(contextOptions);
 		this.builder_ = new MLGraphBuilder(this.context_);
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.inputOptions.inputShape,
 			shape: this.inputOptions.inputShape,
 		};
-		const input = this.builder_.input('input', inputDesc);
+		const input = this.builder_.input("input", inputDesc);
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
 		this.inputTensor_ = await this.context_.createTensor(inputDesc);
 		this.outputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.outputShape_,
 			shape: this.outputShape_,
 			usage: MLTensorUsage.READ,
@@ -233,20 +234,20 @@ export class FaceNetNhwc {
 		const poolOptions = {
 			windowDimensions: [3, 3],
 			strides,
-			layout: 'nhwc',
+			layout: "nhwc",
 		};
 
-		const conv0 = this.buildConv_(input, 'Conv2d_1a_3x3', {strides});
-		const conv1 = this.buildConv_(conv0, 'Conv2d_2a_3x3');
-		const conv2 = this.buildConv_(conv1, 'Conv2d_2b_3x3', {autoPad});
+		const conv0 = this.buildConv_(input, "Conv2d_1a_3x3", { strides });
+		const conv1 = this.buildConv_(conv0, "Conv2d_2a_3x3");
+		const conv2 = this.buildConv_(conv1, "Conv2d_2b_3x3", { autoPad });
 
 		const pool0 = conv2.then((conv2) =>
 			this.builder_.maxPool2d(conv2, poolOptions),
 		);
 
-		const conv3 = this.buildConv_(pool0, 'Conv2d_3b_1x1');
-		const conv4 = this.buildConv_(conv3, 'Conv2d_4a_3x3');
-		const conv5 = this.buildConv_(conv4, 'Conv2d_4b_3x3', {strides});
+		const conv3 = this.buildConv_(pool0, "Conv2d_3b_1x1");
+		const conv4 = this.buildConv_(conv3, "Conv2d_4a_3x3");
+		const conv5 = this.buildConv_(conv4, "Conv2d_4b_3x3", { strides });
 
 		// Block 35
 		const block35_1 = this.buildBlock35_(conv5, 1);
@@ -258,26 +259,26 @@ export class FaceNetNhwc {
 		// Mixed 6a branches
 		const mixed6a_branch0 = this.buildConv_(
 			block35_5,
-			'Mixed_6a_Branch_0_Conv2d_1a_3x3',
-			{strides},
+			"Mixed_6a_Branch_0_Conv2d_1a_3x3",
+			{ strides },
 		);
 		const mixed6a_pool = block35_5.then((block35_5) =>
 			this.builder_.maxPool2d(block35_5, poolOptions),
 		);
 		const mixed6a_branch1_0 = this.buildConv_(
 			block35_5,
-			'Mixed_6a_Branch_1_Conv2d_0a_1x1',
-			{autoPad},
+			"Mixed_6a_Branch_1_Conv2d_0a_1x1",
+			{ autoPad },
 		);
 		const mixed6a_branch1_1 = this.buildConv_(
 			mixed6a_branch1_0,
-			'Mixed_6a_Branch_1_Conv2d_0b_3x3',
-			{autoPad},
+			"Mixed_6a_Branch_1_Conv2d_0b_3x3",
+			{ autoPad },
 		);
 		const mixed6a_branch1_2 = this.buildConv_(
 			mixed6a_branch1_1,
-			'Mixed_6a_Branch_1_Conv2d_1a_3x3',
-			{strides},
+			"Mixed_6a_Branch_1_Conv2d_1a_3x3",
+			{ strides },
 		);
 		const mixed6a = Promise.all([
 			mixed6a_branch0,
@@ -303,38 +304,38 @@ export class FaceNetNhwc {
 		);
 		const mixed7a_branch0_0 = this.buildConv_(
 			block17_10,
-			'Mixed_7a_Branch_0_Conv2d_0a_1x1',
-			{autoPad},
+			"Mixed_7a_Branch_0_Conv2d_0a_1x1",
+			{ autoPad },
 		);
 		const mixed7a_branch0_1 = this.buildConv_(
 			mixed7a_branch0_0,
-			'Mixed_7a_Branch_0_Conv2d_1a_3x3',
-			{strides},
+			"Mixed_7a_Branch_0_Conv2d_1a_3x3",
+			{ strides },
 		);
 		const mixed7a_branch1_0 = this.buildConv_(
 			block17_10,
-			'Mixed_7a_Branch_1_Conv2d_0a_1x1',
-			{autoPad},
+			"Mixed_7a_Branch_1_Conv2d_0a_1x1",
+			{ autoPad },
 		);
 		const mixed7a_branch1_1 = this.buildConv_(
 			mixed7a_branch1_0,
-			'Mixed_7a_Branch_1_Conv2d_1a_3x3',
-			{strides},
+			"Mixed_7a_Branch_1_Conv2d_1a_3x3",
+			{ strides },
 		);
 		const mixed7a_branch2_0 = this.buildConv_(
 			block17_10,
-			'Mixed_7a_Branch_2_Conv2d_0a_1x1',
-			{autoPad},
+			"Mixed_7a_Branch_2_Conv2d_0a_1x1",
+			{ autoPad },
 		);
 		const mixed7a_branch2_1 = this.buildConv_(
 			mixed7a_branch2_0,
-			'Mixed_7a_Branch_2_Conv2d_0b_3x3',
-			{autoPad},
+			"Mixed_7a_Branch_2_Conv2d_0b_3x3",
+			{ autoPad },
 		);
 		const mixed7a_branch2_2 = this.buildConv_(
 			mixed7a_branch2_1,
-			'Mixed_7a_Branch_2_Conv2d_1a_3x3',
-			{strides},
+			"Mixed_7a_Branch_2_Conv2d_1a_3x3",
+			{ strides },
 		);
 		const mixed7a = Promise.all([
 			mixed7a_branch0_1,
@@ -352,7 +353,7 @@ export class FaceNetNhwc {
 		const block8_6 = this.buildBlock8_(block8_5, 6, false);
 
 		const mean = block8_6.then((block8_6) =>
-			this.builder_.averagePool2d(block8_6, {layout: 'nhwc'}),
+			this.builder_.averagePool2d(block8_6, { layout: "nhwc" }),
 		);
 		const fc = await this.buildFullyConnected_(mean);
 		// L2Normalization will be handled in post-processing
@@ -360,13 +361,13 @@ export class FaceNetNhwc {
 	}
 
 	async build(outputOperand) {
-		this.graph_ = await this.builder_.build({output: outputOperand});
+		this.graph_ = await this.builder_.build({ output: outputOperand });
 	}
 
 	async compute(inputBuffer) {
 		this.context_.writeTensor(this.inputTensor_, inputBuffer);
-		const inputs = {input: this.inputTensor_};
-		const outputs = {output: this.outputTensor_};
+		const inputs = { input: this.inputTensor_ };
+		const outputs = { output: this.outputTensor_ };
 		this.context_.dispatch(this.graph_, inputs, outputs);
 		const results = await this.context_.readTensor(this.outputTensor_);
 		return new Float32Array(results);

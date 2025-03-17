@@ -1,12 +1,12 @@
 // The samples under ./samples folder
-const samples = ['matmul.js', 'mul_add.js', 'simple_graph.js'];
+const samples = ["matmul.js", "mul_add.js", "simple_graph.js"];
 
 class SamplesRepository {
 	constructor(samples) {
 		this.samples_ = new Map();
 		for (const fileName of samples) {
-			const url = './samples/' + fileName;
-			this.samples_.set(fileName, {url});
+			const url = "./samples/" + fileName;
+			this.samples_.set(fileName, { url });
 		}
 	}
 

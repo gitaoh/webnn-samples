@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import {getBufferFromUrl, sizeOfShape, permuteData} from '../common/utils.js';
+import { getBufferFromUrl, sizeOfShape, permuteData } from "../common/utils.js";
 
 export class LeNet {
 	constructor(url, layout) {
@@ -21,38 +21,38 @@ export class LeNet {
 		const arrayBuffer = await getBufferFromUrl(this.url_);
 		const WEIGHTS_FILE_SIZE = 1724336;
 		if (arrayBuffer.byteLength !== WEIGHTS_FILE_SIZE) {
-			throw new Error('Incorrect weights file');
+			throw new Error("Incorrect weights file");
 		}
 
 		this.context_ = await navigator.ml.createContext(contextOptions);
 		this.builder_ = new MLGraphBuilder(this.context_);
 		const inputShape = /* nchw */ [1, 1, 28, 28];
 		const inputDesc = {
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: inputShape,
 			shape: inputShape,
 		};
-		let input = this.builder_.input('input', inputDesc);
+		let input = this.builder_.input("input", inputDesc);
 		inputDesc.usage = MLTensorUsage.WRITE;
 		inputDesc.writable = true;
 		this.inputTensor_ = await this.context_.createTensor(inputDesc);
 		this.outputTensor_ = await this.context_.createTensor({
-			dataType: 'float32',
+			dataType: "float32",
 			dimensions: this.outputShape_,
 			shape: this.outputShape_,
 			usage: MLTensorUsage.READ,
 			readable: true,
 		});
-		if (this.layout_ === 'nhwc') {
+		if (this.layout_ === "nhwc") {
 			input = this.builder_.transpose(input, {
 				permutation: this.nchwToNhwcPermutation_,
 			});
 		}
 
 		const conv1Options = {};
-		if (this.layout_ === 'nhwc') {
-			conv1Options.inputLayout = 'nhwc';
-			conv1Options.filterLayout = 'ohwi';
+		if (this.layout_ === "nhwc") {
+			conv1Options.inputLayout = "nhwc";
+			conv1Options.filterLayout = "ohwi";
 		}
 		let conv1FitlerShape = /* oihw */ [20, 1, 5, 5];
 		let byteOffset = 0;
@@ -61,7 +61,7 @@ export class LeNet {
 			byteOffset,
 			sizeOfShape(conv1FitlerShape),
 		);
-		if (this.layout_ === 'nhwc') {
+		if (this.layout_ === "nhwc") {
 			[conv1FilterData, conv1FitlerShape] = permuteData(
 				conv1FilterData,
 				conv1FitlerShape,
@@ -70,7 +70,7 @@ export class LeNet {
 		}
 		const conv1Filter = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: conv1FitlerShape,
 				shape: conv1FitlerShape,
 			},
@@ -87,7 +87,7 @@ export class LeNet {
 		);
 		const add1Bias = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: add1BiasShape,
 				shape: add1BiasShape,
 			},
@@ -108,9 +108,9 @@ export class LeNet {
 		});
 
 		const conv2Options = {};
-		if (this.layout_ === 'nhwc') {
-			conv2Options.inputLayout = 'nhwc';
-			conv2Options.filterLayout = 'ohwi';
+		if (this.layout_ === "nhwc") {
+			conv2Options.inputLayout = "nhwc";
+			conv2Options.filterLayout = "ohwi";
 		}
 		let conv2FilterShape = /* oihw */ [50, 20, 5, 5];
 		let conv2FilterData = new Float32Array(
@@ -118,7 +118,7 @@ export class LeNet {
 			byteOffset,
 			sizeOfShape(conv2FilterShape),
 		);
-		if (this.layout_ === 'nhwc') {
+		if (this.layout_ === "nhwc") {
 			[conv2FilterData, conv2FilterShape] = permuteData(
 				conv2FilterData,
 				conv2FilterShape,
@@ -127,7 +127,7 @@ export class LeNet {
 		}
 		const conv2Filter = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: conv2FilterShape,
 				shape: conv2FilterShape,
 			},
@@ -139,7 +139,7 @@ export class LeNet {
 		const add2BiasShape = [50];
 		const add2Bias = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: add2BiasShape,
 				shape: add2BiasShape,
 			},
@@ -163,7 +163,7 @@ export class LeNet {
 			layout: this.layout_,
 		});
 
-		if (this.layout_ === 'nhwc') {
+		if (this.layout_ === "nhwc") {
 			pool2 = this.builder_.transpose(pool2, {
 				permutation: this.nhwcToNchwPermutation_,
 			});
@@ -178,7 +178,7 @@ export class LeNet {
 		const matmul1Shape = [500, 800];
 		const matmul1Weights = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: matmul1Shape,
 				shape: matmul1Shape,
 			},
@@ -197,7 +197,7 @@ export class LeNet {
 		const add3BiasShape = [1, 500];
 		const add3Bias = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: add3BiasShape,
 				shape: add3BiasShape,
 			},
@@ -219,7 +219,7 @@ export class LeNet {
 		const matmul2Shape = [10, 500];
 		const matmul2Weights = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: matmul2Shape,
 				shape: matmul2Shape,
 			},
@@ -238,7 +238,7 @@ export class LeNet {
 		const add4BiasShape = [1, 10];
 		const add4Bias = this.builder_.constant(
 			{
-				dataType: 'float32',
+				dataType: "float32",
 				dimensions: add4BiasShape,
 				shape: add4BiasShape,
 			},
@@ -254,13 +254,13 @@ export class LeNet {
 	}
 
 	async build(outputOperand) {
-		this.graph_ = await this.builder_.build({output: outputOperand});
+		this.graph_ = await this.builder_.build({ output: outputOperand });
 	}
 
 	async compute(inputBuffer) {
 		this.context_.writeTensor(this.inputTensor_, inputBuffer);
-		const inputs = {input: this.inputTensor_};
-		const outputs = {output: this.outputTensor_};
+		const inputs = { input: this.inputTensor_ };
+		const outputs = { output: this.outputTensor_ };
 		this.context_.dispatch(this.graph_, inputs, outputs);
 		const results = await this.context_.readTensor(this.outputTensor_);
 		return new Float32Array(results);
