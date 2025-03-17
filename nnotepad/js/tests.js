@@ -67,7 +67,7 @@ async function testThrows(expr) {
 // Test Cases
 // ============================================================
 
-document.addEventListener("DOMContentLoaded", async (e) => {
+document.addEventListener("DOMContentLoaded", async(e) => {
 	Harness.section("Numbers");
 	await test("125", { dataType: "float32", shape: [], buffer: [125] });
 	await test("-125", { dataType: "float32", shape: [], buffer: [-125] });

@@ -4,7 +4,8 @@ export class Util {
 		return function(...args) {
 			if (timeoutId) clearTimeout(timeoutId);
 			timeoutId = setTimeout(() => {
-				func.apply(this, ...args); // eslint-disable-line no-invalid-this
+				// eslint-disable-next-line no-invalid-this
+				func.apply(this, ...args);
 				timeoutId = 0;
 			}, delay);
 		};

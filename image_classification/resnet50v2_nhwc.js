@@ -38,7 +38,9 @@ export class ResNet50V2Nhwc {
 		// resnet_v2_50_block1_unit_1_bottleneck_v2_shortcut_weights.npy
 		// 2. contains 'logits', e.g. resnet_v2_50_logits_weights.npy
 		if (nameIndices[0] !== "" && nameIndices[1] !== "") {
-			prefix += `block${nameIndices[0]}_unit_${nameIndices[1]}_bottleneck_v2_`;
+			prefix +=
+				`block${nameIndices[0]}_` +
+				`unit_${nameIndices[1]}_bottleneck_v2_`;
 		}
 		if (nameIndices[2] === "shortcut") {
 			prefix += "shortcut";
@@ -54,7 +56,8 @@ export class ResNet50V2Nhwc {
 		options.inputLayout = layout;
 		options.filterLayout = "ohwi";
 		options.bias = await bias;
-		// WebNN spec drops autoPad support, compute the explicit padding instead.
+		// WebNN spec drops autoPad support,
+		// compute the explicit padding instead.
 		if (options.autoPad == "same-upper") {
 			const isShapeMethod = typeof weights.shape === "function";
 			const inputShape = isShapeMethod ?
@@ -75,12 +78,12 @@ export class ResNet50V2Nhwc {
 		return relu ? this.builder_.relu(conv2d) : conv2d;
 	}
 
-	async buildFusedBatchNorm_(input, nameIndices) {
+	async buildFusedBatchNorm_(input, indi) {
 		let prefix = this.weightsUrl_ + "resnet_v2_50_";
-		if (nameIndices[0] === "postnorm") {
+		if (indi[0] === "postnorm") {
 			prefix += "postnorm";
 		} else {
-			prefix += `block${nameIndices[0]}_unit_${nameIndices[1]}_bottleneck_v2_preact`;
+			prefix += `block${indi[0]}_unit_${indi[1]}_bottleneck_v2_preact`;
 		}
 		const mulParamName = prefix + "_FusedBatchNorm_mul_0_param.npy";
 		const mulParam = buildConstantByNpy(this.builder_, mulParamName);
@@ -218,7 +221,7 @@ export class ResNet50V2Nhwc {
 			["3", "1"],
 			true,
 		);
-		const loop = async (node, num) => {
+		const loop = async(node, num) => {
 			if (num > 5) {
 				return node;
 			} else {

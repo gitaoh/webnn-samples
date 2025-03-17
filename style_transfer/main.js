@@ -30,7 +30,7 @@ const disabledSelectors = [
 	".btn",
 ];
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	$(".icdisplay").hide();
 	if (!(await utils.isWebNN())) {
 		console.log(utils.webNNNotSupportMessage());
@@ -43,7 +43,7 @@ $(document).ready(() => {
 	$(".badge").html(modelId);
 });
 
-$("#backendBtns .btn").on("change", async (e) => {
+$("#backendBtns .btn").on("change", async(e) => {
 	[backend, deviceType] = $("input[name=\"backend\"]:checked")
 		.attr("id")
 		.split("_");
@@ -52,7 +52,7 @@ $("#backendBtns .btn").on("change", async (e) => {
 });
 
 // Click trigger to do inference with <img> element
-$("#img").click(async () => {
+$("#img").click(async() => {
 	if (inputType === "camera") utils.stopCameraStream(rafReq, stream);
 	inputType = "image";
 	$(".shoulddisplay").hide();
@@ -72,7 +72,7 @@ $("#gallery .gallery-image").hover(
 );
 
 // Click trigger to do inference with switched <img> element
-$("#gallery .gallery-item").click(async (e) => {
+$("#gallery .gallery-item").click(async(e) => {
 	const newModelId = $(e.target).attr("id");
 	if (inputType === "camera") utils.stopCameraStream(rafReq, stream);
 	if (newModelId !== modelId) {
@@ -95,14 +95,14 @@ $("#imageFile").change((e) => {
 	}
 });
 
-$("#feedElement").on("load", async () => {
+$("#feedElement").on("load", async() => {
 	if (!isFirstTimeLoad) {
 		await main();
 	}
 });
 
 // Click trigger to do inference with <video> media element
-$("#cam").click(async () => {
+$("#cam").click(async() => {
 	inputType = "camera";
 	$(".shoulddisplay").hide();
 	await main();

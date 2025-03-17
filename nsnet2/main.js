@@ -19,7 +19,7 @@ let denoisedAudioData = [];
 const chooseAudio = document.getElementById("choose-audio");
 const audioName = document.getElementById("audio-name");
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	if (await isWebNN()) {
 		$("#webnn_cpu").click();
 	} else {
@@ -28,7 +28,7 @@ $(document).ready(async () => {
 	}
 });
 
-$("#backendBtns .btn").on("change", async () => {
+$("#backendBtns .btn").on("change", async() => {
 	await main();
 });
 
@@ -49,7 +49,7 @@ const sampleAudios = [
 
 for (const audio of sampleAudios) {
 	const button = document.getElementById(audio.name);
-	button.onclick = async () => {
+	button.onclick = async() => {
 		onNewFile();
 		fileInput.value = "";
 		audioName.innerHTML = audio.url.substring(
@@ -127,7 +127,7 @@ const AudioContext = window.AudioContext || window.webkitAudioContext || false;
 async function denoise(arrayBuffer) {
 	const audioContext = new AudioContext({ sampleRate });
 	const start = performance.now();
-	audioContext.decodeAudioData(arrayBuffer, async (decoded) => {
+	audioContext.decodeAudioData(arrayBuffer, async(decoded) => {
 		console.log(`decode time: ${performance.now() - start}`);
 		audioData = decoded.getChannelData(0);
 		denoisedAudioData = [];

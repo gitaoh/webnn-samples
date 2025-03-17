@@ -18,7 +18,7 @@ export class FaceNetNchw {
 		this.graph_ = null;
 		this.inputTensor_ = null;
 		this.outputTensor_ = null;
-		this.weightsUrl_ =
+		this.weights_ =
 			weightsOrigin() + "/test-data/models/facenet_nchw/weights";
 		this.inputOptions = {
 			mean: [127.5, 127.5, 127.5, 127.5],
@@ -36,13 +36,13 @@ export class FaceNetNchw {
 
 	async buildConv_(
 		input,
-		weightsSuffix,
+		wSuffix,
 		biasPrefix,
 		options = undefined,
 		relu = true,
 	) {
-		const weightsName = `${this.weightsUrl_}/const_fold_opt__${weightsSuffix}.npy`;
-		const biasName = `${this.weightsUrl_}/${biasPrefix}_Conv2D_bias.npy`;
+		const weightsName = `${this.weights_}/const_fold_opt__${wSuffix}.npy`;
+		const biasName = `${this.weights_}/${biasPrefix}_Conv2D_bias.npy`;
 		const [weights, bias] = await Promise.all(
 			[weightsName, biasName].map((name) =>
 				buildConstantByNpy(this.builder_, name),
@@ -60,7 +60,8 @@ export class FaceNetNchw {
 		const isShapeMethod = typeof input.shape === "function";
 		const inputShape = isShapeMethod ? input.shape() : input.shape;
 		const weightsShape = isShapeMethod ? weights.shape() : weights.shape;
-		// WebNN spec drops autoPad support, compute the explicit padding instead.
+		// WebNN spec drops autoPad support,
+		// compute the explicit padding instead.
 		if (options.autoPad == "same-upper") {
 			options.padding = computePadding2DForAutoPad(
 				/* nchw */ [inputShape[2], inputShape[3]],
@@ -207,11 +208,11 @@ export class FaceNetNchw {
 	async buildGemm_(input) {
 		const weights = buildConstantByNpy(
 			this.builder_,
-			`${this.weightsUrl_}/const_fold_opt__888.npy`,
+			`${this.weights_}/const_fold_opt__888.npy`,
 		);
 		const bias = buildConstantByNpy(
 			this.builder_,
-			`${this.weightsUrl_}/Bottleneck_MatMul_bias.npy`,
+			`${this.weights_}/Bottleneck_MatMul_bias.npy`,
 		);
 		return this.builder_.gemm(input, await weights, { c: await bias });
 	}

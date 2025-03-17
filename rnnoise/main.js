@@ -9,7 +9,7 @@ const frameSize = 480;
 const weightsUrl = utils.weightsOrigin() + "/test-data/models/rnnoise/weights/";
 const rnnoise = new RNNoise(weightsUrl, batchSize, frames);
 
-$("#backendBtns .btn").on("change", async () => {
+$("#backendBtns .btn").on("change", async() => {
 	await main();
 });
 
@@ -36,7 +36,7 @@ const originalAudio = document.getElementById("original-audio");
 const denoisedAudio = document.getElementById("denoised-audio");
 const recorderWorker = new Worker("./utils/recorderWorker.js");
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	if (!(await utils.isWebNN())) {
 		console.log(utils.webNNNotSupportMessage());
 		addAlert(utils.webNNNotSupportMessageHTML());
@@ -189,7 +189,7 @@ async function denoise() {
 	});
 }
 
-$(".dropdown-item").click(async (e) => {
+$(".dropdown-item").click(async(e) => {
 	const audioId = $(e.target).attr("id");
 	if (audioId == "browse") {
 		const evt = document.createEvent("MouseEvents");

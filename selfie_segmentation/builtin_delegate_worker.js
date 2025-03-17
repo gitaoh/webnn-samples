@@ -8,7 +8,7 @@ importScripts("./tflite-support/tflite_model_runner_cc_simd.js");
 let modelRunnerResult;
 let modelRunner;
 // Receive the message from the main thread
-onmessage = async (message) => {
+onmessage = async(message) => {
 	if (message) {
 		// Load model or infer depends on the first data
 		switch (message.data.action) {

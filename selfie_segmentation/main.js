@@ -49,13 +49,13 @@ const modelConfigs = {
 let enableWebnnDelegate = false;
 const disabledSelectors = ["#tabs > li", ".btn"];
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	await tf.setBackend("wasm");
 	await tf.ready();
 	$(".icdisplay").hide();
 });
 
-$("input[name=\"model\"]").on("change", async (e) => {
+$("input[name=\"model\"]").on("change", async(e) => {
 	modelChanged = true;
 	modelName = $(e.target).attr("id");
 	if (modelName.startsWith("selfie")) {
@@ -69,7 +69,7 @@ $("input[name=\"model\"]").on("change", async (e) => {
 	await main();
 });
 
-$("#webnnDelegate").on("change", async (e) => {
+$("#webnnDelegate").on("change", async(e) => {
 	modelChanged = true;
 	enableWebnnDelegate = $(e.target)[0].checked;
 	if (inputType === "camera") utils.stopCameraStream(rafReq, stream);
@@ -77,7 +77,7 @@ $("#webnnDelegate").on("change", async (e) => {
 });
 
 // Click trigger to do inference with <img> element
-$("#img").click(async () => {
+$("#img").click(async() => {
 	if (inputType === "camera") utils.stopCameraStream(rafReq, stream);
 	inputType = "image";
 	$("#pickimage").show();
@@ -94,19 +94,19 @@ $("#imageFile").change((e) => {
 	}
 });
 
-$("#feedElement").on("load", async () => {
+$("#feedElement").on("load", async() => {
 	await main();
 });
 
 // Click trigger to do inference with <video> media element
-$("#cam").click(async () => {
+$("#cam").click(async() => {
 	inputType = "camera";
 	$("#pickimage").hide();
 	$(".shoulddisplay").hide();
 	await main();
 });
 
-$("#gallery .gallery-item").click(async (e) => {
+$("#gallery .gallery-item").click(async(e) => {
 	$("#gallery .gallery-item").removeClass("hl");
 	$(e.target).parent().addClass("hl");
 	const backgroundTypeId = $(e.target).attr("id");
@@ -127,7 +127,8 @@ $("#gallery .gallery-item").click(async (e) => {
  */
 async function renderCamStream() {
 	if (!stream.active) return;
-	// If the video element's readyState is 0, the video's width and height are 0.
+	// If the video element's readyState is 0, the video's width and
+	// height are 0.
 	// So check the readState here to make sure it is greater than 0.
 	if (camElement.readyState === 0) {
 		rafReq = requestAnimationFrame(renderCamStream);

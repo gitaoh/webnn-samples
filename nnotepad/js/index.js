@@ -4,7 +4,7 @@ import { Util } from "./util.js";
 import { NNotepad, ParseError } from "./nnotepad.js";
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
-document.addEventListener("DOMContentLoaded", async (e) => {
+document.addEventListener("DOMContentLoaded", async(e) => {
 	let inputValue = "";
 	try {
 		const req = await fetch("res/default.txt");

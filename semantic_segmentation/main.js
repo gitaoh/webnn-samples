@@ -33,7 +33,7 @@ let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ["#tabs > li", ".btn"];
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	$(".icdisplay").hide();
 	if (await utils.isWebNN()) {
 		$("#webnn_cpu").click();
@@ -49,7 +49,7 @@ $(window).on("load", () => {
 	loadRenderUI();
 });
 
-$("#backendBtns .btn").on("change", async (e) => {
+$("#backendBtns .btn").on("change", async(e) => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	}
@@ -57,7 +57,7 @@ $("#backendBtns .btn").on("change", async (e) => {
 	await main();
 });
 
-$("#modelBtns .btn").on("change", async (e) => {
+$("#modelBtns .btn").on("change", async(e) => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	}
@@ -74,7 +74,7 @@ $("#modelBtns .btn").on("change", async (e) => {
 // });
 
 // Click trigger to do inference with <img> element
-$("#img").click(async () => {
+$("#img").click(async() => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	} else {
@@ -95,14 +95,14 @@ $("#imageFile").change((e) => {
 	}
 });
 
-$("#feedElement").on("load", async () => {
+$("#feedElement").on("load", async() => {
 	if (!isFirstTimeLoad) {
 		await main();
 	}
 });
 
 // Click trigger to do inference with <video> media element
-$("#cam").click(async () => {
+$("#cam").click(async() => {
 	if (inputType == "camera") return;
 	inputType = "camera";
 	$("#pickimage").hide();

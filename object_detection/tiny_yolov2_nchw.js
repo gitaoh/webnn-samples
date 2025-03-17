@@ -31,8 +31,11 @@ export class TinyYoloV2Nchw {
 	}
 
 	async buildConv_(input, name) {
-		let biasName = `${this.weightsUrl_}ConvBnFusion_BN_B_BatchNormalization_B${name}.npy`;
-		let weightName = `${this.weightsUrl_}ConvBnFusion_W_convolution${name}_W.npy`;
+		let biasName =
+			`${this.weightsUrl_}ConvBnFusion_B` +
+			`N_B_BatchNormalization_B${name}.npy`;
+		let weightName =
+			`${this.weightsUrl_}ConvBnFusion` + `_W_convolution${name}_W.npy`;
 		if (name === "8") {
 			biasName = `${this.weightsUrl_}convolution8_B.npy`;
 			weightName = `${this.weightsUrl_}convolution8_W.npy`;

@@ -52,7 +52,7 @@ export class Denoiser {
 						true,
 					);
 					this.log(" - Building... ");
-					setTimeout(async () => {
+					setTimeout(async() => {
 						try {
 							const start = performance.now();
 							await this.nsnet.build(outputOperand);
@@ -66,7 +66,7 @@ export class Denoiser {
 						} catch (error) {
 							reject(error);
 						}
-						setTimeout(async () => {
+						setTimeout(async() => {
 							try {
 								// warm up the spec2sig
 								const start = performance.now();

@@ -508,10 +508,13 @@ export class NNotepad {
 			throw new Error(`unexpected line type: ${line.type}`);
 		}
 
-		// Serialize an expression. If `callContext` is provided, it can either be
-		// an object with `name` and `index` properties which identify a method call
+		// Serialize an expression. If `callContext` is provided, it can
+		// either be
+		// an object with `name` and `index` properties which identify a method
+		// call
 		// and argument position, used to determine the argument type, or an
-		// `kArgTypeXYZ` value to explicitly specify the type. This is needed for
+		// `kArgTypeXYZ` value to explicitly specify the type. This is needed
+		// for
 		// numbers, arrays, and dictionary members, which are serialized
 		// contextually.
 		function serializeExpr(expr, callContext) {
@@ -636,11 +639,14 @@ export class NNotepad {
 				});
 			})(tensor, 0);
 			const ctor = WebNNUtil.dataTypeToBufferType(dataType);
-			return `_.constant({dataType: "${dataType}", dimensions: ${Util.stringify(
-				shape,
-			)}, shape: ${Util.stringify(shape)}}, new ${ctor.name}([${elements
-				.map((n) => Util.stringifyNumber(n, dataType))
-				.join(",")}]).buffer)`;
+			return (
+				`_.constant({dataType: "${dataType}",` +
+				` dimensions: ${Util.stringify(shape)}, shape: ${Util.stringify(
+					shape,
+				)}}, new ${ctor.name}([${elements
+					.map((n) => Util.stringifyNumber(n, dataType))
+					.join(",")}]).buffer)`
+			);
 		}
 
 		function serializeArray(array, argumentType) {
@@ -736,7 +742,7 @@ export class NNotepad {
 		const namedOutputs = {};
 		const outputTensors = {};
 		const outputBuffers = {};
-		outputOperands.forEach(async (op, index) => {
+		outputOperands.forEach(async(op, index) => {
 			const name = `output-${index}`;
 			namedOutputs[name] = op;
 			outputBuffers[name] = WebNNUtil.bufferForOperand(op);

@@ -1,8 +1,8 @@
 "use strict";
+import { addAlert } from "../common/ui.js";
 import * as utils from "../common/utils.js";
 import { LeNet } from "./lenet.js";
 import { Pen } from "./pen.js";
-import { addAlert } from "../common/ui.js";
 
 const buildTimeElement = document.getElementById("buildTime");
 const inferenceTimeElement = document.getElementById("inferenceTime");
@@ -20,7 +20,7 @@ const pen = new Pen(visualCanvas);
 let lenet;
 let numRuns;
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	if (!(await utils.isWebNN())) {
 		console.log(utils.webNNNotSupportMessage());
 		addAlert(utils.webNNNotSupportMessageHTML());
@@ -37,7 +37,7 @@ function clearInferenceResult() {
 	}
 }
 
-$("#backendBtns .btn").on("change", async () => {
+$("#backendBtns .btn").on("change", async() => {
 	await main();
 });
 
@@ -110,9 +110,8 @@ async function main() {
 		}
 		let start = performance.now();
 		const outputOperand = await lenet.load(contextOptions);
-		console.log(
-			`loading elapsed time: ${(performance.now() - start).toFixed(2)} ms`,
-		);
+		const perf = (performance.now() - start).toFixed(2);
+		console.log(`loading elapsed time: ${perf} ms`);
 
 		start = performance.now();
 		await lenet.build(outputOperand);
@@ -158,7 +157,9 @@ predictButton.addEventListener("click", async function(e) {
 		if (numRuns === 1) {
 			inferenceTimeElement.innerHTML =
 				"Execution Time: " +
-				`<span class='text-primary'>${inferenceTime.toFixed(2)}</span> ms`;
+				`<span class='text-primary'>${inferenceTime.toFixed(
+					2,
+				)}</span> ms`;
 		} else {
 			const medianInferenceTime = getMedianValue(inferenceTimeArray);
 			console.log(

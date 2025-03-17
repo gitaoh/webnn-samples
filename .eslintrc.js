@@ -6,6 +6,7 @@ module.exports = {
 	rules: {
 		quotes: [2, "double"],
 		semi: 0,
+		"space-before-function-paren": ["error", "never"],
 		"object-curly-spacing": ["error", "always"],
 		"quote-props": ["error", "as-needed"],
 		indent: [2, "tab"],

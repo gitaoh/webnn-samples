@@ -35,7 +35,8 @@ export class SqueezeNetNhwc {
 		options.inputLayout = "nhwc";
 		options.filterLayout = "ohwi";
 		options.bias = await bias;
-		// WebNN spec drops autoPad support, compute the explicit padding instead.
+		// WebNN spec drops autoPad support, compute the explicit
+		// padding instead.
 		if (options.autoPad == "same-upper") {
 			const isShapeMethod = typeof weights.shape === "function";
 			const inputShape = isShapeMethod ?

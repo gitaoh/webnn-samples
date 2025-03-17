@@ -40,7 +40,7 @@ let stopRender = true;
 let isRendering = false;
 const disabledSelectors = ["#tabs > li", ".btn"];
 
-$(document).ready(async () => {
+$(document).ready(async() => {
 	$(".icdisplay").hide();
 	if (await utils.isWebNN()) {
 		$("#webnn_cpu").click();
@@ -50,7 +50,7 @@ $(document).ready(async () => {
 	}
 });
 
-$("#backendBtns .btn").on("change", async (e) => {
+$("#backendBtns .btn").on("change", async(e) => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	}
@@ -58,7 +58,7 @@ $("#backendBtns .btn").on("change", async (e) => {
 	await main();
 });
 
-$("#fdModelBtns .btn").on("change", async (e) => {
+$("#fdModelBtns .btn").on("change", async(e) => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	}
@@ -75,7 +75,7 @@ $("#fdModelBtns .btn").on("change", async (e) => {
 // });
 
 // Click trigger to do inference with <img> element
-$("#img").click(async () => {
+$("#img").click(async() => {
 	if (inputType === "camera") {
 		await ui.showProgressComponent("current", "pending", "pending");
 		await stopCamRender();
@@ -104,7 +104,7 @@ $("#targetImgFile").change((e) => {
 	}
 });
 
-$("#targetImage").on("load", async () => {
+$("#targetImage").on("load", async() => {
 	if (inputType === "camera") {
 		await stopCamRender();
 	}
@@ -121,13 +121,13 @@ $("#searchImgFile").change((e) => {
 	}
 });
 
-$("#searchImage").on("load", async () => {
+$("#searchImage").on("load", async() => {
 	searchEmbeddings = null;
 	await main();
 });
 
 // Click trigger to do inference with <video> media element
-$("#cam").click(async () => {
+$("#cam").click(async() => {
 	if (inputType == "camera") return;
 	inputType = "camera";
 	$(".shoulddisplay").hide();
@@ -153,7 +153,8 @@ function stopCamRender() {
  */
 async function renderCamStream() {
 	if (!stream.active || stopRender) return;
-	// If the video element's readyState is 0, the video's width and height are 0.
+	// If the video element's readyState is 0, the video's
+	// width and height are 0.
 	// So check the readState here to make sure it is greater than 0.
 	if (camElem.readyState === 0) {
 		rafReq = requestAnimationFrame(renderCamStream);
